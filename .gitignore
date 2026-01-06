@@ -61,3 +61,16 @@ emulator_console_auth_token
 adbkey
 adbkey.pub
 encryptionkey.img
+
+# Gradle cache (ruta absoluta del usuario)
+.gradle/
+*.bin
+*.jar
+*.aar
+*.marker
+
+# Statsig
+statsig.failed_logs.*
+
+# Android cache
+androidx.camera.*
