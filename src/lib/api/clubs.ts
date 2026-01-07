@@ -1,224 +1,250 @@
-// ============================================
-// API CLIENT - lib/api/clubs.ts
-// ============================================
-
-
+// src/lib/api/clubs.ts
+import { mdl05Client } from './client';
+import { mockClubTypes, mockDenominations, mockClubStatuses } from '@/lib/data/mockData';
 import type {
-    Club,
-    ClubWithDetails,
-    ClubFilters,
-    PaginatedClubs,
-    CreateClubDTO,
-    UpdateClubDTO,
-    ClubType,
-    ClubStatus,
-    Denomination,
-    ClubWeek,
-    ClubTransaction,
-    ClubRule,
-    Draw,
-    LimitNumber,
-} from '@/lib/types/club';
-import { apiClient } from './client';
+    Club, ClubFilters, PaginatedClubs, CreateClubDTO, UpdateClubDTO,
+    ClubType, ClubStatus, Denomination, ClubWeek, ClubTransaction, ClubRule, Draw, LimitNumber,
+} from '@/types/club';
 
-// Base URL para MDL05
 const BASE_URL = '/mdl05';
 
 export const clubApi = {
     // ==========================================
-    // CRUD Clubes
+    // Listar Clubes
     // ==========================================
-    async getClubs(
-        filters: ClubFilters = {},
-        page = 1,
-        pageSize = 10
-    ): Promise<PaginatedClubs> {
-        const params = new URLSearchParams({
-            page: String(page),
-            pageSize: String(pageSize),
-            ...Object.fromEntries(
-                Object.entries(filters).filter(([_, v]) => v !== undefined && v !== '')
-            ),
-        });
-        return apiClient.get(`${BASE_URL}/getClubs?${params}`);
+    async getClubs(filters: ClubFilters = {}, page = 1, pageSize = 20): Promise<PaginatedClubs> {
+        try {
+            const payload = {
+                SearchText: filters.search || "",
+                PageNumber: page,
+                PageSize: pageSize,
+                Status: null,
+            };
+
+            console.log('🔍 Buscando clubes:', payload);
+
+            const { data: response } = await mdl05Client.post(`${BASE_URL}/club/history`, payload);
+
+            console.log('📦 Respuesta clubes:', response);
+
+            const dataArray = response.Data || response || [];
+
+            // Mapear con los campos EXACTOS que vienen del API
+            const clubs: Club[] = dataArray.map((c: any) => ({
+                clubId: c.ClubId,
+                contractNumber: c.ContractNumber || '',
+                customerId: c.CustomerId || '',
+                customerName: c.CustomerName || 'Sin nombre',
+                customerNumber: c.CustomerNumber || '',
+                externalCode: c.ExternalCode || '',
+                clubTypeId: c.ClubTypeId || '',
+                denominationId: c.DenominationId || '',
+                clubStatusId: c.ClubStatusId || '',
+                statusName: c.NameStatus || 'Desconocido',
+                salesAgentId: c.SalesAgentId || '',
+                storeId: c.StoreId || '',
+                saaSId: c.SaaSId || 2,
+                share: c.Share || 0,
+                weeksPlayed: 52,
+                weeksPaid: c.WeeksPaid || 0,
+                weeksLate: c.WeeksLate || 0,
+                paidAmount: c.PaidAmount || 0,
+                retiredAmount: c.RetiredAmount || 0,
+                balanceAmount: c.BalanceAmount || 0,
+                totalAmount: c.TotalAmount || 0,
+                startDate: c.StartDate || '',
+                finishDate: c.FinishDate || '',
+                prizeDate: c.PrizeDate || '',
+                createdDate: c.CreatedDate || '',
+                cancellationDate: c.CancellationDate || '',
+                active: c.NameStatus?.toLowerCase() === 'activo',
+            }));
+
+            // TotalRegisters puede venir en el primer item o en la respuesta
+            const total = dataArray[0]?.TotalRegisters || response.TotalRegisters || clubs.length;
+
+            console.log(`✅ Clubes obtenidos: ${clubs.length} de ${total}`);
+
+            return {
+                data: clubs,
+                total,
+                page,
+                pageSize,
+                totalPages: Math.ceil(total / pageSize),
+            };
+        } catch (error) {
+            console.error('❌ Error al buscar clubes:', error);
+            return { data: [], total: 0, page, pageSize, totalPages: 0 };
+        }
     },
 
-    async getClubById(clubId: string): Promise<ClubWithDetails> {
-        return apiClient.get(`${BASE_URL}/getClub/${clubId}`);
+    // ==========================================
+    // Obtener Club por ID
+    // ==========================================
+    async getClubById(clubId: string) {
+        const { data } = await mdl05Client.get(`${BASE_URL}/getClub/${clubId}`);
+        return data;
     },
 
-    async createClub(data: CreateClubDTO): Promise<Club> {
-        // Formato según el CURL proporcionado
+    // ==========================================
+    // Crear Club
+    // ==========================================
+    async createClub(clubData: CreateClubDTO): Promise<Club> {
         const payload = {
-            saaSId: data.saaSId || 2,
-            ClubTypeId: data.clubTypeId,
-            CustomerId: data.customerId,
-            SalesAgentId: data.salesAgentId,
-            DenominationId: data.denominationId,
-            StoreId: data.storeId,
-            Share: data.share,
-            StartDate: data.startDate,
+            saaSId: clubData.saaSId || 2,
+            ClubTypeId: clubData.clubTypeId,
+            CustomerId: clubData.customerId,
+            SalesAgentId: clubData.salesAgentId,
+            DenominationId: clubData.denominationId,
+            StoreId: clubData.storeId,
+            Share: clubData.share,
+            StartDate: clubData.startDate,
         };
-        return apiClient.post(`${BASE_URL}/createClub`, payload);
+
+        console.log('🚀 Creando club:', payload);
+        const { data } = await mdl05Client.post(`${BASE_URL}/createClub`, payload);
+        console.log('✅ Club creado:', data);
+        return data;
     },
 
-    async updateClub(clubId: string, data: UpdateClubDTO): Promise<Club> {
-        return apiClient.patch(`${BASE_URL}/updateClub/${clubId}`, data);
+    // ==========================================
+    // Actualizar Club
+    // ==========================================
+    async updateClub(clubId: string, clubData: UpdateClubDTO): Promise<Club> {
+        const { data } = await mdl05Client.patch(`${BASE_URL}/updateClub/${clubId}`, clubData);
+        return data;
     },
 
+    // ==========================================
+    // Eliminar Club
+    // ==========================================
     async deleteClub(clubId: string): Promise<void> {
-        return apiClient.delete(`${BASE_URL}/deleteClub/${clubId}`);
+        await mdl05Client.delete(`${BASE_URL}/deleteClub/${clubId}`);
     },
 
     // ==========================================
     // Semanas del Club
     // ==========================================
     async getClubWeeks(clubId: string): Promise<ClubWeek[]> {
-        return apiClient.get(`${BASE_URL}/getClubWeeks/${clubId}`);
+        const { data } = await mdl05Client.get(`${BASE_URL}/getClubWeeks/${clubId}`);
+        return data;
     },
 
-    async payWeek(
-        clubId: string,
-        weekNumber: number,
-        amount: number
-    ): Promise<ClubWeek> {
-        return apiClient.post(`${BASE_URL}/payClubWeek`, {
-            clubId,
-            weekNumber,
-            amount,
-        });
+    async payWeek(clubId: string, weekNumber: number, amount: number): Promise<ClubWeek> {
+        const { data } = await mdl05Client.post(`${BASE_URL}/payClubWeek`, { clubId, weekNumber, amount });
+        return data;
     },
 
     // ==========================================
     // Transacciones
     // ==========================================
     async getClubTransactions(clubId: string): Promise<ClubTransaction[]> {
-        return apiClient.get(`${BASE_URL}/getClubTransactions/${clubId}`);
+        const { data } = await mdl05Client.get(`${BASE_URL}/getClubTransactions/${clubId}`);
+        return data;
     },
 
-    async createTransaction(
-        clubId: string,
-        data: Partial<ClubTransaction>
-    ): Promise<ClubTransaction> {
-        return apiClient.post(`${BASE_URL}/createClubTransaction`, {
-            clubId,
-            ...data,
-        });
+    async createTransaction(clubId: string, transactionData: Partial<ClubTransaction>): Promise<ClubTransaction> {
+        const { data } = await mdl05Client.post(`${BASE_URL}/createClubTransaction`, { clubId, ...transactionData });
+        return data;
     },
 
     // ==========================================
-    // Catálogos
+    // Catálogos (mock por ahora)
     // ==========================================
     async getClubTypes(): Promise<ClubType[]> {
-        return apiClient.get(`${BASE_URL}/getClubTypes`);
+        return Promise.resolve(mockClubTypes);
     },
 
     async getClubStatuses(): Promise<ClubStatus[]> {
-        return apiClient.get(`${BASE_URL}/getClubStatuses`);
+        return Promise.resolve(mockClubStatuses);
     },
 
     async getDenominations(): Promise<Denomination[]> {
-        return apiClient.get(`${BASE_URL}/getDenominations`);
+        return Promise.resolve(mockDenominations);
     },
 
     async getTransactionTypes(): Promise<any[]> {
-        return apiClient.get(`${BASE_URL}/getTransactionTypes`);
+        const { data } = await mdl05Client.get(`${BASE_URL}/getTransactionTypes`);
+        return data;
     },
 
     // ==========================================
-    // Reglas del Club
+    // Reglas
     // ==========================================
     async getClubRules(): Promise<ClubRule[]> {
-        return apiClient.get(`${BASE_URL}/getClubRules`);
+        const { data } = await mdl05Client.get(`${BASE_URL}/getClubRules`);
+        return data;
     },
 
-    async createRule(data: Partial<ClubRule>): Promise<ClubRule> {
-        return apiClient.post(`${BASE_URL}/createClubRule`, data);
+    async createRule(ruleData: Partial<ClubRule>): Promise<ClubRule> {
+        const { data } = await mdl05Client.post(`${BASE_URL}/createClubRule`, ruleData);
+        return data;
     },
 
-    async updateRule(ruleId: string, data: Partial<ClubRule>): Promise<ClubRule> {
-        return apiClient.patch(`${BASE_URL}/updateClubRule/${ruleId}`, data);
+    async updateRule(ruleId: string, ruleData: Partial<ClubRule>): Promise<ClubRule> {
+        const { data } = await mdl05Client.patch(`${BASE_URL}/updateClubRule/${ruleId}`, ruleData);
+        return data;
     },
 
     async deleteRule(ruleId: string): Promise<void> {
-        return apiClient.delete(`${BASE_URL}/deleteClubRule/${ruleId}`);
+        await mdl05Client.delete(`${BASE_URL}/deleteClubRule/${ruleId}`);
     },
 
     // ==========================================
-    // Sorteos (Draws)
+    // Sorteos
     // ==========================================
-    async getDraws(
-        clubTypeId?: string,
-        dateFrom?: string,
-        dateTo?: string
-    ): Promise<Draw[]> {
+    async getDraws(clubTypeId?: string, dateFrom?: string, dateTo?: string): Promise<Draw[]> {
         const params = new URLSearchParams();
         if (clubTypeId) params.append('clubTypeId', clubTypeId);
         if (dateFrom) params.append('dateFrom', dateFrom);
         if (dateTo) params.append('dateTo', dateTo);
-        return apiClient.get(`${BASE_URL}/getDraws?${params}`);
+        const { data } = await mdl05Client.get(`${BASE_URL}/getDraws?${params}`);
+        return data;
     },
 
-    async registerDraw(data: {
-        date: string;
-        numberPlayed: number;
-        clubTypeId: string;
-    }): Promise<Draw> {
-        return apiClient.post(`${BASE_URL}/registerDraw`, data);
+    async registerDraw(drawData: { date: string; numberPlayed: number; clubTypeId: string }): Promise<Draw> {
+        const { data } = await mdl05Client.post(`${BASE_URL}/registerDraw`, drawData);
+        return data;
     },
 
-    async updateDraw(drawId: string, data: Partial<Draw>): Promise<Draw> {
-        return apiClient.patch(`${BASE_URL}/updateDraw/${drawId}`, data);
+    async updateDraw(drawId: string, drawData: Partial<Draw>): Promise<Draw> {
+        const { data } = await mdl05Client.patch(`${BASE_URL}/updateDraw/${drawId}`, drawData);
+        return data;
     },
 
     // ==========================================
-    // Límites de Números (1-39: 100, 40-99: 300)
+    // Límites
     // ==========================================
     async getLimitNumbers(): Promise<LimitNumber[]> {
-        return apiClient.get(`${BASE_URL}/getLimitNumbers`);
+        const { data } = await mdl05Client.get(`${BASE_URL}/getLimitNumbers`);
+        return data;
     },
 
     async updateLimitNumber(number: number, limit: number): Promise<LimitNumber> {
-        return apiClient.patch(`${BASE_URL}/updateLimitNumber/${number}`, { limit });
+        const { data } = await mdl05Client.patch(`${BASE_URL}/updateLimitNumber/${number}`, { limit });
+        return data;
     },
 
     // ==========================================
-    // Historial y Auditoría
+    // Historial
     // ==========================================
     async getClubHistory(clubId: string): Promise<any[]> {
-        return apiClient.get(`${BASE_URL}/getClubHistory/${clubId}`);
+        const { data } = await mdl05Client.get(`${BASE_URL}/getClubHistory/${clubId}`);
+        return data;
     },
 
     async getClubChangeHistory(clubId: string): Promise<any[]> {
-        return apiClient.get(`${BASE_URL}/getClubChangeHistory/${clubId}`);
+        const { data } = await mdl05Client.get(`${BASE_URL}/getClubChangeHistory/${clubId}`);
+        return data;
     },
 
-    // ==========================================
-    // Utilidades
-    // ==========================================
     async searchByContract(contractNumber: string): Promise<Club[]> {
-        return apiClient.get(`${BASE_URL}/searchClub?contractNumber=${contractNumber}`);
+        const { data } = await mdl05Client.get(`${BASE_URL}/searchClub?contractNumber=${contractNumber}`);
+        return data;
     },
 
-    async getClubStats(clubId: string): Promise<{
-        totalPaid: number;
-        totalPending: number;
-        weeksOnTime: number;
-        weeksLate: number;
-    }> {
-        return apiClient.get(`${BASE_URL}/getClubStats/${clubId}`);
-    },
-
-    async exportClubs(
-        filters: ClubFilters,
-        format: 'csv' | 'xlsx' = 'xlsx'
-    ): Promise<Blob> {
-        const params = new URLSearchParams({
-            format,
-            ...Object.fromEntries(
-                Object.entries(filters).filter(([_, v]) => v !== undefined)
-            ),
-        });
-        return apiClient.getBlob(`${BASE_URL}/exportClubs?${params}`);
+    async getClubStats(clubId: string): Promise<any> {
+        const { data } = await mdl05Client.get(`${BASE_URL}/getClubStats/${clubId}`);
+        return data;
     },
 };

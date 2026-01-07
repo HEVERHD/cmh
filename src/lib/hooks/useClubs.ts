@@ -40,6 +40,7 @@ export const clubKeys = {
 // ==========================================
 
 // Listar clubes con filtros y paginación
+// Reemplaza esta función:
 export function useClubs(
     filters: ClubFilters = {},
     page = 1,
@@ -48,10 +49,13 @@ export function useClubs(
     return useQuery({
         queryKey: clubKeys.list(filters, page, pageSize),
         queryFn: () => clubApi.getClubs(filters, page, pageSize),
-        staleTime: 30000, // 30 segundos
+        staleTime: 5 * 60 * 1000, // 5 minutos
+        gcTime: 30 * 60 * 1000, // 30 minutos en caché  
+        placeholderData: (prev) => prev,
+        retry: 1,
+        refetchOnWindowFocus: false,
     });
 }
-
 // Obtener un club por ID
 export function useClub(clubId: string) {
     return useQuery({

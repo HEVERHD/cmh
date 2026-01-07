@@ -1,225 +1,110 @@
-// lib/hooks/useClientes.ts
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+// src/lib/hooks/useClientes.ts
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState, useMemo, useCallback } from 'react';
 import { clientesApi, clientesKeys } from '@/lib/api/clientes';
-import { useClientesStore } from '@/stores/clientesStore';
-import {
-    ClienteFilters, CreateClienteDTO, UpdateClienteDTO,
-    AjustePuntosDTO, Cliente
-} from '@/types/clientes';
-import { toast } from 'sonner';
+import { useDebouncedValue } from './useDebounce';
 
-// Hook principal para listar clientes
+
+interface UseClientesOptions {
+    initialPage?: number;
+    pageSize?: number;
+    enabled?: boolean;
+}
+
+/**
+ * Hook principal para listar clientes con paginación del servidor
+ */
 export function useClientes(
-    filters: ClienteFilters,
-    page: number,
-    pageSize: number
+    filters: { search?: string; customerTypeId?: string; categoryId?: string } = {},
+    page = 1,
+    pageSize = 10,
+    options: UseClientesOptions = {}
 ) {
-    const { setClientes, setTotal, setLoading } = useClientesStore();
+    const { enabled = true } = options;
+
+    // Debounce search para no hacer requests en cada tecla
+    const debouncedSearch = useDebouncedValue(filters.search || '', 400);
+
+    const queryFilters = useMemo(() => ({
+        ...filters,
+        search: debouncedSearch,
+    }), [filters.customerTypeId, filters.categoryId, debouncedSearch]);
 
     return useQuery({
-        queryKey: clientesKeys.list(filters, page, pageSize),
-        queryFn: async () => {
-            setLoading(true);
-            try {
-                const result = await clientesApi.getAll(filters, page, pageSize);
-                setClientes(result.data);
-                setTotal(result.total);
-                return result;
-            } finally {
-                setLoading(false);
-            }
-        },
-        staleTime: 30 * 1000, // 30 segundos
+        queryKey: clientesKeys.list(queryFilters, page, pageSize),
+        queryFn: () => clientesApi.getAll(queryFilters, page, pageSize),
+        enabled,
+        staleTime: 30 * 1000, // 30 segundos - datos frescos
+        gcTime: 5 * 60 * 1000, // 5 minutos en cache
+        placeholderData: (prev) => prev, // Mantener datos previos mientras carga
     });
 }
 
-// Hook para obtener un cliente por ID
+/**
+ * Hook para búsqueda en select/autocomplete
+ * Optimizado para cargar solo cuando el usuario escribe
+ */
+export function useClientesSearch(searchTerm: string) {
+    const debouncedTerm = useDebouncedValue(searchTerm, 300);
+
+    return useQuery({
+        queryKey: clientesKeys.search(debouncedTerm),
+        queryFn: () => clientesApi.searchForSelect(debouncedTerm),
+        enabled: debouncedTerm.length >= 2,
+        staleTime: 60 * 1000, // 1 minuto
+        gcTime: 5 * 60 * 1000,
+    });
+}
+
+/**
+ * Hook para obtener un cliente específico
+ */
 export function useCliente(id: string | null) {
     return useQuery({
-        queryKey: clientesKeys.detail(id!),
+        queryKey: clientesKeys.detail(id || ''),
         queryFn: () => clientesApi.getById(id!),
         enabled: !!id,
+        staleTime: 5 * 60 * 1000,
     });
 }
 
-// Hook para crear cliente
-export function useCreateCliente() {
-    const queryClient = useQueryClient();
-    const { addCliente, closeCreateModal } = useClientesStore();
+/**
+ * Hook con estado de paginación integrado
+ */
+export function useClientesPaginated(initialFilters = {}, initialPageSize = 10) {
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(initialPageSize);
+    const [filters, setFilters] = useState(initialFilters);
 
-    return useMutation({
-        mutationFn: (data: CreateClienteDTO) => clientesApi.create(data),
-        onSuccess: (newCliente) => {
-            addCliente(newCliente);
-            queryClient.invalidateQueries({ queryKey: clientesKeys.lists() });
-            queryClient.invalidateQueries({ queryKey: clientesKeys.stats() });
-            closeCreateModal();
-            toast.success('Cliente creado exitosamente');
-        },
-        onError: (error: Error) => {
-            toast.error(`Error al crear cliente: ${error.message}`);
-        },
-    });
-}
+    const query = useClientes(filters, page, pageSize);
 
-// Hook para actualizar cliente
-export function useUpdateCliente() {
-    const queryClient = useQueryClient();
-    const { updateCliente, closeEditModal } = useClientesStore();
+    const goToPage = useCallback((newPage: number) => {
+        setPage(newPage);
+    }, []);
 
-    return useMutation({
-        mutationFn: ({ id, data }: { id: string; data: UpdateClienteDTO }) =>
-            clientesApi.update(id, data),
-        onSuccess: (updated) => {
-            updateCliente(updated.id, updated);
-            queryClient.invalidateQueries({ queryKey: clientesKeys.detail(updated.id) });
-            queryClient.invalidateQueries({ queryKey: clientesKeys.lists() });
-            closeEditModal();
-            toast.success('Cliente actualizado');
-        },
-        onError: (error: Error) => {
-            toast.error(`Error al actualizar: ${error.message}`);
-        },
-    });
-}
+    const updateFilters = useCallback((newFilters: typeof filters) => {
+        setFilters(newFilters);
+        setPage(1); // Reset a página 1 al filtrar
+    }, []);
 
-// Hook para eliminar cliente
-export function useDeleteCliente() {
-    const queryClient = useQueryClient();
-    const { removeCliente } = useClientesStore();
+    const updateSearch = useCallback((search: string) => {
+        setFilters(prev => ({ ...prev, search }));
+        setPage(1);
+    }, []);
 
-    return useMutation({
-        mutationFn: (id: string) => clientesApi.delete(id),
-        onSuccess: (_, id) => {
-            removeCliente(id);
-            queryClient.invalidateQueries({ queryKey: clientesKeys.lists() });
-            queryClient.invalidateQueries({ queryKey: clientesKeys.stats() });
-            toast.success('Cliente eliminado');
-        },
-        onError: (error: Error) => {
-            toast.error(`Error al eliminar: ${error.message}`);
-        },
-    });
-}
-
-// Hook para cambio masivo de status
-export function useBulkUpdateStatus() {
-    const queryClient = useQueryClient();
-    const { clearSelection } = useClientesStore();
-
-    return useMutation({
-        mutationFn: ({ ids, status }: { ids: string[]; status: Cliente['status'] }) =>
-            clientesApi.bulkUpdateStatus(ids, status),
-        onSuccess: ({ updated }) => {
-            queryClient.invalidateQueries({ queryKey: clientesKeys.lists() });
-            clearSelection();
-            toast.success(`${updated} clientes actualizados`);
-        },
-        onError: (error: Error) => {
-            toast.error(`Error: ${error.message}`);
-        },
-    });
-}
-
-// Hook para historial de compras
-export function useHistorialCompras(clienteId: string | null, page = 1) {
-    return useQuery({
-        queryKey: clientesKeys.historial(clienteId!),
-        queryFn: () => clientesApi.getHistorialCompras(clienteId!, page),
-        enabled: !!clienteId,
-    });
-}
-
-// Hook para movimientos de puntos
-export function useMovimientosPuntos(clienteId: string | null, page = 1) {
-    return useQuery({
-        queryKey: clientesKeys.puntos(clienteId!),
-        queryFn: () => clientesApi.getMovimientosPuntos(clienteId!, page),
-        enabled: !!clienteId,
-    });
-}
-
-// Hook para ajustar puntos
-export function useAjustarPuntos() {
-    const queryClient = useQueryClient();
-    const { closeAjustePuntosModal, updateCliente } = useClientesStore();
-
-    return useMutation({
-        mutationFn: (data: AjustePuntosDTO) => clientesApi.ajustarPuntos(data),
-        onSuccess: (movimiento) => {
-            updateCliente(movimiento.clienteId, {
-                puntosDisponibles: movimiento.saldoNuevo,
-            });
-            queryClient.invalidateQueries({
-                queryKey: clientesKeys.detail(movimiento.clienteId)
-            });
-            queryClient.invalidateQueries({
-                queryKey: clientesKeys.puntos(movimiento.clienteId)
-            });
-            closeAjustePuntosModal();
-            toast.success('Puntos ajustados correctamente');
-        },
-        onError: (error: Error) => {
-            toast.error(`Error: ${error.message}`);
-        },
-    });
-}
-
-// Hook para estadísticas
-export function useClientesStats() {
-    return useQuery({
-        queryKey: clientesKeys.stats(),
-        queryFn: () => clientesApi.getStats(),
-        staleTime: 60 * 1000, // 1 minuto
-    });
-}
-
-// Hook para importar
-export function useImportClientes() {
-    const queryClient = useQueryClient();
-    const { closeImportModal } = useClientesStore();
-
-    return useMutation({
-        mutationFn: clientesApi.import,
-        onSuccess: ({ imported, errors }) => {
-            queryClient.invalidateQueries({ queryKey: clientesKeys.lists() });
-            queryClient.invalidateQueries({ queryKey: clientesKeys.stats() });
-            closeImportModal();
-            if (errors.length > 0) {
-                toast.warning(`${imported} importados, ${errors.length} errores`);
-            } else {
-                toast.success(`${imported} clientes importados`);
-            }
-        },
-        onError: (error: Error) => {
-            toast.error(`Error al importar: ${error.message}`);
-        },
-    });
-}
-
-// Hook para exportar
-export function useExportClientes() {
-    return useMutation({
-        mutationFn: async ({
-            filters,
-            formato
-        }: {
-            filters: ClienteFilters;
-            formato: 'csv' | 'xlsx'
-        }) => {
-            const blob = await clientesApi.exportar(filters, formato);
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `clientes.${formato}`;
-            a.click();
-            window.URL.revokeObjectURL(url);
-        },
-        onSuccess: () => {
-            toast.success('Exportación completada');
-        },
-        onError: (error: Error) => {
-            toast.error(`Error al exportar: ${error.message}`);
-        },
-    });
+    return {
+        ...query,
+        page,
+        pageSize,
+        filters,
+        setPage: goToPage,
+        setPageSize,
+        setFilters: updateFilters,
+        setSearch: updateSearch,
+        // Helpers
+        hasNextPage: query.data ? page < query.data.totalPages : false,
+        hasPrevPage: page > 1,
+        nextPage: () => goToPage(page + 1),
+        prevPage: () => goToPage(page - 1),
+    };
 }

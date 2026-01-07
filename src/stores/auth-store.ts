@@ -14,6 +14,20 @@ interface AuthStore extends AuthState {
     hasPermission: (permission: string) => boolean;
 }
 
+// Helper para normalizar roles a strings
+const normalizeRoles = (rawRoles: any[]): string[] => {
+    if (!Array.isArray(rawRoles)) return [];
+
+    return rawRoles.map((r) => {
+        if (typeof r === 'string') return r;
+        if (typeof r === 'object' && r !== null) {
+            // Manejar diferentes formatos: { Name: 'Admin' }, { RoleName: 'Admin' }, etc.
+            return r.Name || r.RoleName || r.name || r.roleName || r.value || JSON.stringify(r);
+        }
+        return String(r);
+    }).filter(Boolean);
+};
+
 export const useAuthStore = create<AuthStore>()(
     persist(
         (set, get) => ({
@@ -27,25 +41,47 @@ export const useAuthStore = create<AuthStore>()(
                 set({ isLoading: true, error: null });
 
                 try {
-                    // loginUser ya valida y retorna estructura normalizada
+                    console.log('🔐 Iniciando login...');
                     const data = await loginUser(params);
 
-                    // Guardar token en cookies
-                    Cookies.set('accessToken', data.token, {
-                        expires: params.rememberMe ? 7 : 1,
-                        secure: process.env.NODE_ENV === 'production',
-                        sameSite: 'lax'
+                    // 📊 Log completo de la data del usuario
+                    console.log('✅ Login exitoso');
+                    console.log('═══════════════════════════════════════');
+                    console.log('📊 DATA COMPLETA DEL USUARIO:');
+                    console.log('═══════════════════════════════════════');
+                    console.log('🆔 User ID:', data.userId);
+                    console.log('📧 Email/Username:', data.userName);
+                    console.log('🎭 User Roles:', data.userRoles);
+                    console.log('👤 Customer Info:', data.customerInfo);
+                    console.log('🔑 Token (primeros 50 chars):', data.token?.substring(0, 50) + '...');
+                    console.log('═══════════════════════════════════════');
+                    console.table(data); // Muestra toda la data en formato tabla
+                    console.log('📋 Raw userRoles:', data.userRoles);
+
+                    // Normalizar roles a array de strings
+                    const roles = normalizeRoles(data.userRoles || []);
+                    console.log('📋 Roles normalizados:', roles);
+
+                    // Determinar rol del usuario
+                    let role: User['role'] = 'operator';
+
+                    const hasAdminRole = roles.some((r) => {
+                        const lower = r.toLowerCase();
+                        return lower.includes('admin') || lower.includes('super');
                     });
 
-                    Cookies.set('tenantId', String(params.tenantId));
+                    const hasAnalystRole = roles.some((r) => {
+                        const lower = r.toLowerCase();
+                        return lower.includes('analyst') || lower.includes('analista');
+                    });
 
-                    // Determinar rol basado en userRoles
-                    let role: User['role'] = 'operator';
-                    if (data.userRoles?.includes('Admin') || data.userRoles?.includes('admin')) {
+                    if (hasAdminRole) {
                         role = 'admin';
-                    } else if (data.userRoles?.includes('Analyst') || data.userRoles?.includes('analyst')) {
+                    } else if (hasAnalystRole) {
                         role = 'analyst';
                     }
+
+                    console.log('👤 Rol asignado:', role);
 
                     const user: User = {
                         id: data.userId || '',
@@ -53,7 +89,7 @@ export const useAuthStore = create<AuthStore>()(
                         name: data.customerInfo?.CustomerName || data.userName || params.email.split('@')[0],
                         role: role,
                         tenantId: String(params.tenantId),
-                        permissions: data.userRoles || [],
+                        permissions: roles,
                         createdAt: new Date().toISOString(),
                     };
 
@@ -71,9 +107,15 @@ export const useAuthStore = create<AuthStore>()(
                         error: null,
                     });
 
+                    // 📊 Log del usuario guardado en el store
+                    console.log('═══════════════════════════════════════');
+                    console.log('💾 USUARIO GUARDADO EN STORE:');
+                    console.log('═══════════════════════════════════════');
+                    console.table(user);
+                    console.log('✅ Sesión iniciada correctamente');
+
                 } catch (error) {
-                    Cookies.remove('accessToken');
-                    Cookies.remove('tenantId');
+                    console.error('❌ Error en login:', error);
 
                     const message = error instanceof Error ? error.message : getErrorMessage(error);
 
@@ -90,9 +132,11 @@ export const useAuthStore = create<AuthStore>()(
             },
 
             logout: () => {
-                Cookies.remove('accessToken');
-                Cookies.remove('refreshToken');
-                Cookies.remove('tenantId');
+                console.log('🚪 Cerrando sesión...');
+
+                Cookies.remove('accessToken', { path: '/' });
+                Cookies.remove('refreshToken', { path: '/' });
+                Cookies.remove('tenantId', { path: '/' });
 
                 set({
                     user: null,
@@ -120,6 +164,7 @@ export const useAuthStore = create<AuthStore>()(
             name: 'auth-storage',
             partialize: (state) => ({
                 user: state.user,
+                tokens: state.tokens,
                 isAuthenticated: state.isAuthenticated,
             }),
         }
