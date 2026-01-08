@@ -1,0 +1,221 @@
+'use client';
+
+import { useState, useEffect, useRef } from 'react';
+import { getDocumentTypes, DocumentType } from '@/services/documentTypeService';
+
+export interface DocumentTypeSelection {
+    documentTypeId: string;
+    description: string;
+}
+
+interface DocumentTypeSelectorProps {
+    value: string; // documentTypeId
+    onChange: (selection: DocumentTypeSelection) => void;
+    customerTypeId: string;
+    error?: string;
+    required?: boolean;
+}
+
+export default function DocumentTypeSelector({ value, onChange, customerTypeId, error }: DocumentTypeSelectorProps) {
+    const [documentTypes, setDocumentTypes] = useState<DocumentType[]>([]);
+    const [filteredDocumentTypes, setFilteredDocumentTypes] = useState<DocumentType[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+    const [selectedDocumentType, setSelectedDocumentType] = useState<DocumentType | null>(null);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const prevCustomerTypeId = useRef<string>('');
+    const onChangeRef = useRef(onChange);
+
+    // Mantener ref actualizado
+    useEffect(() => {
+        onChangeRef.current = onChange;
+    }, [onChange]);
+
+    useEffect(() => {
+        // Recargar cuando cambia el customerTypeId
+        if (customerTypeId && customerTypeId !== prevCustomerTypeId.current) {
+            prevCustomerTypeId.current = customerTypeId;
+
+            const fetchDocumentTypes = async () => {
+                setIsLoading(true);
+                try {
+                    const data = await getDocumentTypes(customerTypeId);
+                    setDocumentTypes(data);
+                    setFilteredDocumentTypes(data);
+
+                    // Seleccionar el primer tipo de documento por defecto
+                    if (data.length > 0) {
+                        const firstDocType = data[0];
+                        setSelectedDocumentType(firstDocType);
+                        setSearchTerm(firstDocType.Description);
+                        // Usar setTimeout para asegurar que el form se actualice después del render
+                        setTimeout(() => {
+                            onChangeRef.current({
+                                documentTypeId: firstDocType.DocumentTypeId,
+                                description: firstDocType.Description
+                            });
+                        }, 0);
+                    } else {
+                        setSelectedDocumentType(null);
+                        setSearchTerm('');
+                        setTimeout(() => {
+                            onChangeRef.current({
+                                documentTypeId: '',
+                                description: ''
+                            });
+                        }, 0);
+                    }
+                } catch (error) {
+                    console.error('Error loading document types:', error);
+                } finally {
+                    setIsLoading(false);
+                }
+            };
+
+            fetchDocumentTypes();
+        }
+    }, [customerTypeId]);
+
+    useEffect(() => {
+        // Cerrar dropdown al hacer clic fuera
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        // Si hay un valor inicial (documentTypeId), buscar el tipo de documento correspondiente
+        if (value && documentTypes.length > 0 && !selectedDocumentType) {
+            const docType = documentTypes.find(d => d.DocumentTypeId === value);
+            if (docType) {
+                setSelectedDocumentType(docType);
+                setSearchTerm(docType.Description);
+            }
+        }
+    }, [value, documentTypes]);
+
+    useEffect(() => {
+        // Filtrar tipos de documento según el término de búsqueda
+        if (searchTerm.trim() === '') {
+            setFilteredDocumentTypes(documentTypes);
+        } else {
+            const normalizeText = (text: string) => {
+                return text
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '');
+            };
+
+            const normalizedSearch = normalizeText(searchTerm);
+            const filtered = documentTypes.filter(docType =>
+                normalizeText(docType.Description).includes(normalizedSearch) ||
+                normalizeText(docType.Code || '').includes(normalizedSearch)
+            );
+            setFilteredDocumentTypes(filtered);
+        }
+    }, [searchTerm, documentTypes]);
+
+    const handleSelect = (docType: DocumentType) => {
+        setSelectedDocumentType(docType);
+        setSearchTerm(docType.Description);
+        onChange({
+            documentTypeId: docType.DocumentTypeId,
+            description: docType.Description
+        });
+        setIsOpen(false);
+    };
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.value;
+        setSearchTerm(newValue);
+        setIsOpen(true);
+
+        // Si el usuario borra todo, limpiar la selección
+        if (newValue === '') {
+            setSelectedDocumentType(null);
+            onChange({
+                documentTypeId: '',
+                description: ''
+            });
+        }
+    };
+
+    const handleInputFocus = () => {
+        setIsOpen(true);
+        // Mostrar todos los tipos de documento cuando se abre el dropdown
+        setFilteredDocumentTypes(documentTypes);
+    };
+
+    return (
+        <div className="relative" ref={dropdownRef}>
+            <div className="relative">
+                <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={handleInputChange}
+                    onFocus={handleInputFocus}
+                    placeholder={isLoading ? 'Cargando tipos de documento...' : 'Buscar tipo de documento...'}
+                    disabled={isLoading}
+                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                        error ? 'border-red-500' : 'border-gray-300'
+                    } ${isLoading ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <svg
+                        className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+
+            {isOpen && !isLoading && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {filteredDocumentTypes.length > 0 ? (
+                        <ul className="py-1">
+                            {filteredDocumentTypes.map((docType) => (
+                                <li key={docType.DocumentTypeId}>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleSelect(docType)}
+                                        className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-colors ${
+                                            selectedDocumentType?.DocumentTypeId === docType.DocumentTypeId
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : 'text-gray-700'
+                                        }`}
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <span className="font-medium">{docType.Description}</span>
+                                            {docType.Code && (
+                                                <span className="text-xs text-gray-500 ml-2">
+                                                    {docType.Code}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                            No se encontraron tipos de documento
+                        </div>
+                    )}
+                </div>
+            )}
+
+            {error && (
+                <p className="text-red-500 text-sm mt-1">{error}</p>
+            )}
+        </div>
+    );
+}
