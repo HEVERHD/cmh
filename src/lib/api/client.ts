@@ -77,7 +77,7 @@ export const mdl05Client = axios.create({
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
-    "api-key": MDL05_API_KEY,
+    "api-key": API_KEY,
   },
   timeout: 180000, // 3 MINUTOS - el endpoint es MUY lento
 });

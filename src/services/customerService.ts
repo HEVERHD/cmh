@@ -332,3 +332,131 @@ export const registerCustomer = async (formData: ClienteFormData): Promise<Regis
     throw new Error("Error de conexión. Por favor intente nuevamente.");
   }
 };
+
+// ==================== BÚSQUEDA DE CLIENTES ====================
+
+// Interface para los parámetros de búsqueda
+export interface SearchCustomersParams {
+  pageNumber?: number;
+  pageSize?: number;
+  searchText?: string;
+  dateStart?: string | null;
+}
+
+// Interface para un cliente en la lista
+export interface CustomerListItem {
+  CustomerId: string;
+  SystemCode: string; // Código del cliente
+  FirstName: string;
+  FullName: string;
+  LastName: string;
+  NumberId: string; // Documento de identidad
+  Ruc: string;
+  Dv: string;
+  Email: string;
+  PhoneNumber: string; // Teléfono
+  CustomerType: string;
+  CustomerTypeId: string;
+  Status: string;
+  CreatedDate: string;
+  PriceList?: {
+    PriceListId: string;
+    PriceListName: string;
+    DefaultList: boolean;
+  }[] | null; // Lista de precios (array)
+  // Campos adicionales que puede traer el API
+  LegalName?: string;
+  ComercialName?: string;
+  Country?: string;
+}
+
+// Interface para la respuesta de búsqueda
+export interface SearchCustomersResponse {
+  Status: {
+    Code: number;
+    Message: string;
+  };
+  Data: CustomerListItem[] | null;
+  TotalCount?: number;
+  PageNumber?: number;
+  PageSize?: number;
+  TotalPages?: number;
+}
+
+// Función helper para obtener el CompanyId del localStorage
+const getCompanyId = (): string => {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("auth-storage");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return parsed?.state?.company?.companyId || "AEE876CB-7183-4BEE-8FCA-984B7A1F6BA9";
+      }
+    } catch (e) {
+      console.error("Error obteniendo companyId:", e);
+    }
+  }
+  return "AEE876CB-7183-4BEE-8FCA-984B7A1F6BA9"; // Default
+};
+
+// Función helper para obtener el CompanyCode del localStorage
+const getCompanyCode = (): string => {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("auth-storage");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return parsed?.state?.company?.companyCode || "CO";
+      }
+    } catch (e) {
+      console.error("Error obteniendo companyCode:", e);
+    }
+  }
+  return "CO"; // Default
+};
+
+/**
+ * Busca clientes con paginación y filtros
+ * @param params - Parámetros de búsqueda
+ * @returns Lista de clientes paginada
+ */
+export const searchCustomers = async (params: SearchCustomersParams = {}): Promise<SearchCustomersResponse> => {
+  try {
+    const {
+      pageNumber = 1,
+      pageSize = 10,
+      searchText = "",
+      dateStart = null
+    } = params;
+
+    const payload = {
+      CompanyId: getCompanyId(),
+      CompanyCode: getCompanyCode(),
+      RoleName: "Customer",
+      GlobalExecution: 1,
+      PageNumber: pageNumber,
+      SearchText: searchText,
+      PageSize: pageSize,
+      DateStart: dateStart
+    };
+
+    console.log("🔍 Buscando clientes:", payload);
+
+    const response = await apiClient.post<SearchCustomersResponse>(
+      "/mdl03/searchCustomers/post",
+      payload
+    );
+
+    console.log("📦 Respuesta de búsqueda:", response.data);
+
+    return response.data;
+  } catch (error: any) {
+    console.error("❌ Error en searchCustomers:", error);
+
+    if (error.response?.data?.Status?.Message) {
+      throw new Error(error.response.data.Status.Message);
+    }
+
+    throw new Error("Error al buscar clientes. Por favor intente nuevamente.");
+  }
+};
