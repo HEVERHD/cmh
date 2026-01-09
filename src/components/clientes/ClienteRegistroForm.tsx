@@ -342,41 +342,59 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
         return (
             <div className="space-y-6">
                 <div>
-                    <h2 className="text-xl font-semibold text-gray-900 mb-2">Nuevo Cliente</h2>
-                    <p className="text-gray-600">Seleccione el tipo de cliente que desea registrar</p>
+                    <h2 className="text-xl font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Nuevo Cliente</h2>
+                    <p style={{ color: 'var(--text-secondary)' }}>Seleccione el tipo de cliente que desea registrar</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <button
                         onClick={() => handleTipoClienteSelect('particular')}
-                        className="p-6 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                        className="p-6 border-2 rounded-lg transition-all group"
+                        style={{ borderColor: 'var(--border)' }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--primary)';
+                            e.currentTarget.style.backgroundColor = 'var(--primary-light)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--border)';
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
                     >
                         <div className="flex flex-col items-center space-y-3">
-                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200">
-                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-16 h-16 rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: 'var(--primary-light)' }}>
+                                <svg className="w-8 h-8" style={{ color: 'var(--primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                 </svg>
                             </div>
                             <div className="text-center">
-                                <h3 className="font-semibold text-gray-900">Cliente Particular</h3>
-                                <p className="text-sm text-gray-500 mt-1">Persona natural</p>
+                                <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Cliente Particular</h3>
+                                <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Persona natural</p>
                             </div>
                         </div>
                     </button>
 
                     <button
                         onClick={() => handleTipoClienteSelect('empresa')}
-                        className="p-6 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all group"
+                        className="p-6 border-2 rounded-lg transition-all group"
+                        style={{ borderColor: 'var(--border)' }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--primary)';
+                            e.currentTarget.style.backgroundColor = 'var(--primary-light)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.borderColor = 'var(--border)';
+                            e.currentTarget.style.backgroundColor = 'transparent';
+                        }}
                     >
                         <div className="flex flex-col items-center space-y-3">
-                            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200">
-                                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-16 h-16 rounded-full flex items-center justify-center transition-colors" style={{ backgroundColor: 'var(--primary-light)' }}>
+                                <svg className="w-8 h-8" style={{ color: 'var(--primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                 </svg>
                             </div>
                             <div className="text-center">
-                                <h3 className="font-semibold text-gray-900">Cliente Empresa</h3>
-                                <p className="text-sm text-gray-500 mt-1">Persona jurídica</p>
+                                <h3 className="font-semibold" style={{ color: 'var(--text-primary)' }}>Cliente Empresa</h3>
+                                <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Persona jurídica</p>
                             </div>
                         </div>
                     </button>
@@ -385,7 +403,10 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                 <div className="flex justify-end">
                     <button
                         onClick={onCancel}
-                        className="px-4 py-2 text-gray-700 hover:text-gray-900 transition-colors"
+                        className="px-4 py-2 transition-colors"
+                        style={{ color: 'var(--text-secondary)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--text-primary)'}
+                        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
                     >
                         Cancelar
                     </button>
@@ -398,15 +419,18 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
         <form onSubmit={handleSubmit(onSubmitForm as any)} className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-xl font-semibold text-gray-900">
+                    <h2 className="text-xl font-semibold" style={{ color: 'var(--text-primary)' }}>
                         {tipoCliente === 'particular' ? 'Registro Cliente Particular' : 'Registro Cliente Empresa'}
                     </h2>
-                    <p className="text-gray-600 text-sm mt-1">Complete todos los campos requeridos</p>
+                    <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>Complete todos los campos requeridos</p>
                 </div>
                 <button
                     type="button"
                     onClick={() => setTipoCliente(null)}
-                    className="text-sm text-blue-600 hover:text-blue-700"
+                    className="text-sm transition-colors"
+                    style={{ color: 'var(--primary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = 'var(--primary-glow)'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = 'var(--primary)'}
                 >
                     Cambiar tipo
                 </button>
@@ -418,15 +442,20 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Nombre */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Nombre <span className="text-red-500">*</span>
                         </label>
                         <input
                             {...register('nombre' as any)}
                             type="text"
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).nombre ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: (errors as any).nombre ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = (errors as any).nombre ? '1px solid var(--error)' : '1px solid var(--border)'}
                             placeholder="Ingrese el nombre"
                             onInput={(e) => {
                                 const target = e.target as HTMLInputElement;
@@ -440,15 +469,20 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Apellido */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Apellido <span className="text-red-500">*</span>
                         </label>
                         <input
                             {...register('apellido' as any)}
                             type="text"
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).apellido ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: (errors as any).apellido ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = (errors as any).apellido ? '1px solid var(--error)' : '1px solid var(--border)'}
                             placeholder="Ingrese el apellido"
                             onInput={(e) => {
                                 const target = e.target as HTMLInputElement;
@@ -462,7 +496,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Tipo de Documento */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Tipo de Documento <span className="text-red-500">*</span>
                         </label>
                         <Controller
@@ -487,7 +521,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Cédula / Documento */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             {getDocumentFieldLabel(documentTypeDescription || tipoDocumentoSeleccionado)} <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -499,10 +533,13 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                                 }
                             })}
                             type="text"
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).cedula || documentError ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            placeholder={getDocumentPlaceholder(documentTypeDescription || tipoDocumentoSeleccionado)}
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: ((errors as any).cedula || documentError) ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
                             onBlur={(e) => {
                                 const value = e.target.value;
                                 const tipoDoc = documentTypeDescription || tipoDocumentoSeleccionado;
@@ -511,7 +548,9 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                                 } else {
                                     setDocumentError('');
                                 }
+                                e.currentTarget.style.border = ((errors as any).cedula || documentError) ? '1px solid var(--error)' : '1px solid var(--border)';
                             }}
+                            placeholder={getDocumentPlaceholder(documentTypeDescription || tipoDocumentoSeleccionado)}
                         />
                         {(errors as any).cedula && (
                             <p className="text-red-500 text-sm mt-1">{(errors as any).cedula.message}</p>
@@ -523,16 +562,21 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* DV */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             DV
                         </label>
                         <input
                             {...register('dv' as any)}
                             type="text"
                             maxLength={2}
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).dv ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: (errors as any).dv ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = (errors as any).dv ? '1px solid var(--error)' : '1px solid var(--border)'}
                             placeholder="0-99"
                             onInput={(e) => {
                                 const target = e.target as HTMLInputElement;
@@ -546,7 +590,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Género */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Género <span className="text-red-500">*</span>
                         </label>
                         <Controller
@@ -566,15 +610,20 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Fecha de Nacimiento */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Fecha de Nacimiento <span className="text-red-500">*</span>
                         </label>
                         <input
                             {...register('fechaNacimiento' as any)}
                             type="date"
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).fechaNacimiento ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: (errors as any).fechaNacimiento ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = (errors as any).fechaNacimiento ? '1px solid var(--error)' : '1px solid var(--border)'}
                         />
                         {(errors as any).fechaNacimiento && (
                             <p className="text-red-500 text-sm mt-1">{(errors as any).fechaNacimiento.message}</p>
@@ -583,7 +632,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Tipo de Teléfono */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Tipo de Teléfono <span className="text-red-500">*</span>
                         </label>
                         <Controller
@@ -608,7 +657,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Teléfono */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Teléfono <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -621,14 +670,13 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                             })}
                             type="tel"
                             maxLength={getPhoneConfig(telephoneTypeDescription).maxLength}
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).telefono || phoneError ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            placeholder={getPhoneConfig(telephoneTypeDescription).placeholder}
-                            onInput={(e) => {
-                                const target = e.target as HTMLInputElement;
-                                target.value = target.value.replace(/[^0-9]/g, '');
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: ((errors as any).telefono || phoneError) ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
                             }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
                             onBlur={(e) => {
                                 const value = e.target.value;
                                 if (value) {
@@ -641,6 +689,12 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                                 } else {
                                     setPhoneError('');
                                 }
+                                e.currentTarget.style.border = ((errors as any).telefono || phoneError) ? '1px solid var(--error)' : '1px solid var(--border)';
+                            }}
+                            placeholder={getPhoneConfig(telephoneTypeDescription).placeholder}
+                            onInput={(e) => {
+                                const target = e.target as HTMLInputElement;
+                                target.value = target.value.replace(/[^0-9]/g, '');
                             }}
                         />
                         {(errors as any).telefono && (
@@ -653,7 +707,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Nivel de Educación */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Nivel de Educación
                         </label>
                         <Controller
@@ -671,7 +725,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Nacionalidad */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Nacionalidad
                         </label>
                         <Controller
@@ -689,7 +743,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* País */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             País
                         </label>
                         <Controller
@@ -707,7 +761,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Estado Civil */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Estado Civil
                         </label>
                         <Controller
@@ -727,15 +781,20 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Nombre Legal */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Nombre Legal <span className="text-red-500">*</span>
                         </label>
                         <input
                             {...register('nombreLegal' as any)}
                             type="text"
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).nombreLegal ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: (errors as any).nombreLegal ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = (errors as any).nombreLegal ? '1px solid var(--error)' : '1px solid var(--border)'}
                             placeholder="Nombre registrado de la empresa"
                             onInput={(e) => {
                                 const target = e.target as HTMLInputElement;
@@ -749,15 +808,20 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Nombre Comercial */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Nombre Comercial <span className="text-red-500">*</span>
                         </label>
                         <input
                             {...register('nombreComercial' as any)}
                             type="text"
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).nombreComercial ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: (errors as any).nombreComercial ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = (errors as any).nombreComercial ? '1px solid var(--error)' : '1px solid var(--border)'}
                             placeholder="Nombre comercial"
                             onInput={(e) => {
                                 const target = e.target as HTMLInputElement;
@@ -771,7 +835,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Tipo de Documento */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Tipo de Documento
                         </label>
                         <Controller
@@ -794,7 +858,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* RUC / Documento */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             {getDocumentFieldLabel(documentTypeDescription || tipoDocumentoSeleccionado)} <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -806,10 +870,13 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                                 }
                             })}
                             type="text"
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).ruc || documentError ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            placeholder={getDocumentPlaceholder(documentTypeDescription || tipoDocumentoSeleccionado)}
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: ((errors as any).ruc || documentError) ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
                             onBlur={(e) => {
                                 const value = e.target.value;
                                 const tipoDoc = documentTypeDescription || tipoDocumentoSeleccionado;
@@ -818,7 +885,9 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                                 } else {
                                     setDocumentError('');
                                 }
+                                e.currentTarget.style.border = ((errors as any).ruc || documentError) ? '1px solid var(--error)' : '1px solid var(--border)';
                             }}
+                            placeholder={getDocumentPlaceholder(documentTypeDescription || tipoDocumentoSeleccionado)}
                         />
                         {(errors as any).ruc && (
                             <p className="text-red-500 text-sm mt-1">{(errors as any).ruc.message}</p>
@@ -830,16 +899,21 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* DV */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             DV <span className="text-red-500">*</span>
                         </label>
                         <input
                             {...register('dv' as any)}
                             type="text"
                             maxLength={2}
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).dv ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: (errors as any).dv ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = (errors as any).dv ? '1px solid var(--error)' : '1px solid var(--border)'}
                             placeholder="0-99"
                             onInput={(e) => {
                                 const target = e.target as HTMLInputElement;
@@ -853,7 +927,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Tipo de Teléfono */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Tipo de Teléfono <span className="text-red-500">*</span>
                         </label>
                         <Controller
@@ -878,7 +952,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Teléfono */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Teléfono <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -891,14 +965,13 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                             })}
                             type="tel"
                             maxLength={getPhoneConfig(telephoneTypeDescription).maxLength}
-                            className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                (errors as any).telefono || phoneError ? 'border-red-500' : 'border-gray-300'
-                            }`}
-                            placeholder={getPhoneConfig(telephoneTypeDescription).placeholder}
-                            onInput={(e) => {
-                                const target = e.target as HTMLInputElement;
-                                target.value = target.value.replace(/[^0-9]/g, '');
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: ((errors as any).telefono || phoneError) ? '1px solid var(--error)' : '1px solid var(--border)',
+                                color: 'var(--text-primary)'
                             }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
                             onBlur={(e) => {
                                 const value = e.target.value;
                                 if (value) {
@@ -911,6 +984,12 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                                 } else {
                                     setPhoneError('');
                                 }
+                                e.currentTarget.style.border = ((errors as any).telefono || phoneError) ? '1px solid var(--error)' : '1px solid var(--border)';
+                            }}
+                            placeholder={getPhoneConfig(telephoneTypeDescription).placeholder}
+                            onInput={(e) => {
+                                const target = e.target as HTMLInputElement;
+                                target.value = target.value.replace(/[^0-9]/g, '');
                             }}
                         />
                         {(errors as any).telefono && (
@@ -923,39 +1002,60 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Código de Recurrencia */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Código de Recurrencia de Visita
                         </label>
                         <input
                             {...register('codigoRecurrencia' as any)}
                             type="text"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = '1px solid var(--border)'}
                             placeholder="Código de recurrencia"
                         />
                     </div>
 
                     {/* Actividad Comercial */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Actividad Comercial
                         </label>
                         <input
                             {...register('actividadComercial' as any)}
                             type="text"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = '1px solid var(--border)'}
                             placeholder="Ej: Comercio al por mayor"
                         />
                     </div>
 
                     {/* Sitio Web */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Sitio Web
                         </label>
                         <input
                             {...register('sitioWeb' as any)}
                             type="url"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = '1px solid var(--border)'}
                             placeholder="https://www.ejemplo.com"
                         />
                         {(errors as any).sitioWeb && (
@@ -965,14 +1065,21 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* Año de Fundación */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             Año de Fundación
                         </label>
                         <input
                             {...register('anioFundacion' as any)}
                             type="text"
                             maxLength={4}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                            style={{
+                                backgroundColor: 'var(--input-bg)',
+                                border: '1px solid var(--border)',
+                                color: 'var(--text-primary)'
+                            }}
+                            onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                            onBlur={(e) => e.currentTarget.style.border = '1px solid var(--border)'}
                             placeholder="Ej: 2020"
                             onInput={(e) => {
                                 const target = e.target as HTMLInputElement;
@@ -983,7 +1090,7 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
 
                     {/* País */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-secondary)' }}>
                             País
                         </label>
                         <Controller
@@ -1000,17 +1107,27 @@ export default function ClienteRegistroForm({ onSubmit, onCancel }: ClienteRegis
                 </div>
             )}
 
-            <div className="flex justify-end space-x-4 pt-6 border-t">
+            <div className="flex justify-end space-x-4 pt-6" style={{ borderTop: '1px solid var(--border)' }}>
                 <button
                     type="button"
                     onClick={handleCancel}
-                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="px-6 py-2 rounded-lg transition-colors"
+                    style={{
+                        border: '1px solid var(--border)',
+                        color: 'var(--text-primary)',
+                        backgroundColor: 'var(--card)'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--card-hover)'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--card)'}
                 >
                     Cancelar
                 </button>
                 <button
                     type="submit"
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    className="px-6 py-2 text-white rounded-lg transition-all"
+                    style={{ backgroundColor: 'var(--primary)' }}
+                    onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
+                    onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                 >
                     Registrar Cliente
                 </button>

@@ -131,13 +131,16 @@ export default function ClientesPage() {
         <div className="space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Gestión de Clientes</h1>
-                    <p className="text-gray-500 mt-1">Miembros del club, historial y preferencias</p>
+                    <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Gestión de Clientes</h1>
+                    <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>Miembros del club, historial y preferencias</p>
                 </div>
                 {!mostrarFormulario && (
                     <button
                         onClick={() => setMostrarFormulario(true)}
-                        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                        className="px-4 py-2 text-white rounded-lg transition-colors"
+                        style={{ backgroundColor: 'var(--primary)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-glow)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
                     >
                         + Nuevo Cliente
                     </button>
@@ -146,7 +149,7 @@ export default function ClientesPage() {
 
             {/* Mensajes de éxito/error */}
             {successMessage && (
-                <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
+                <div className="px-4 py-3 rounded-lg flex items-center" style={{ backgroundColor: 'var(--success-bg)', border: '1px solid var(--success)', color: 'var(--success)' }}>
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
@@ -155,14 +158,17 @@ export default function ClientesPage() {
             )}
 
             {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center">
+                <div className="px-4 py-3 rounded-lg flex items-center" style={{ backgroundColor: 'var(--error-bg)', border: '1px solid var(--error)', color: 'var(--error)' }}>
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                     {error}
                     <button
                         onClick={() => setError(null)}
-                        className="ml-auto text-red-500 hover:text-red-700"
+                        className="ml-auto transition-colors"
+                        style={{ color: 'var(--error)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -172,25 +178,25 @@ export default function ClientesPage() {
             )}
 
             {mostrarFormulario ? (
-                <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 relative">
+                <div className="rounded-xl p-8 shadow-sm relative" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
                     {isLoading && (
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/95 to-white/95 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl">
-                            <div className="flex flex-col items-center bg-white p-8 rounded-2xl shadow-xl border border-blue-100">
+                        <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl" style={{ backgroundColor: 'rgba(26, 29, 36, 0.95)' }}>
+                            <div className="flex flex-col items-center p-8 rounded-2xl shadow-xl" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border-accent)' }}>
                                 <div className="relative">
-                                    <div className="w-16 h-16 border-4 border-blue-200 rounded-full"></div>
-                                    <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+                                    <div className="w-16 h-16 border-4 rounded-full" style={{ borderColor: 'var(--border)' }}></div>
+                                    <div className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin absolute top-0 left-0" style={{ borderColor: 'var(--primary)' }}></div>
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--primary)' }}>
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                     </div>
                                 </div>
-                                <p className="mt-4 text-lg font-semibold text-gray-800">Registrando cliente</p>
-                                <p className="mt-1 text-sm text-gray-500">Por favor espere un momento...</p>
+                                <p className="mt-4 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Registrando cliente</p>
+                                <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>Por favor espere un momento...</p>
                                 <div className="mt-4 flex space-x-1">
-                                    <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                    <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                    <span className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                    <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--primary)', animationDelay: '0ms' }}></span>
+                                    <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--primary)', animationDelay: '150ms' }}></span>
+                                    <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--primary)', animationDelay: '300ms' }}></span>
                                 </div>
                             </div>
                         </div>
@@ -204,7 +210,7 @@ export default function ClientesPage() {
                     />
                 </div>
             ) : (
-                <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
+                <div className="rounded-xl p-8 shadow-sm" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
                     {/* Barra de búsqueda */}
                     <div className="flex gap-4 mb-6">
                         <div className="flex-1 relative">
@@ -214,21 +220,30 @@ export default function ClientesPage() {
                                 onChange={(e) => setSearchInput(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                                 placeholder="Buscar por nombre, documento, código..."
-                                className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="w-full px-4 py-2 pl-10 rounded-lg focus:outline-none transition-all"
+                                style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                                onFocus={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                                onBlur={(e) => e.currentTarget.style.border = '1px solid var(--border)'}
                             />
-                            <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </div>
                         <button
                             onClick={handleSearch}
-                            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                            className="px-4 py-2 text-white rounded-lg transition-colors"
+                            style={{ backgroundColor: 'var(--primary)' }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-glow)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
                         >
                             Buscar
                         </button>
                         <button
                             onClick={() => loadCustomers(currentPage, searchText)}
-                            className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                            className="px-4 py-2 rounded-lg transition-colors"
+                            style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--card-hover)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                             title="Actualizar lista"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -239,90 +254,86 @@ export default function ClientesPage() {
 
                     {isLoadingList ? (
                         <div className="flex justify-center items-center py-16">
-                            <div className="flex flex-col items-center bg-gradient-to-br from-blue-50 to-white p-8 rounded-2xl shadow-sm border border-blue-100">
+                            <div className="flex flex-col items-center p-8 rounded-2xl shadow-sm" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border-accent)' }}>
                                 <div className="relative">
-                                    <div className="w-16 h-16 border-4 border-blue-100 rounded-full"></div>
-                                    <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin absolute top-0 left-0"></div>
+                                    <div className="w-16 h-16 border-4 rounded-full" style={{ borderColor: 'var(--border)' }}></div>
+                                    <div className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin absolute top-0 left-0" style={{ borderColor: 'var(--primary)' }}></div>
                                     <div className="absolute inset-0 flex items-center justify-center">
-                                        <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--primary)' }}>
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                         </svg>
                                     </div>
                                 </div>
-                                <p className="mt-5 text-lg font-semibold text-gray-800">Cargando clientes</p>
-                                <p className="mt-1 text-sm text-gray-500">Por favor espere un momento...</p>
+                                <p className="mt-5 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Cargando clientes</p>
+                                <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>Por favor espere un momento...</p>
                                 <div className="mt-4 flex space-x-1.5">
-                                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
-                                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
-                                    <span className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+                                    <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--primary)', animationDelay: '0ms' }}></span>
+                                    <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--primary)', animationDelay: '150ms' }}></span>
+                                    <span className="w-2 h-2 rounded-full animate-bounce" style={{ backgroundColor: 'var(--primary)', animationDelay: '300ms' }}></span>
                                 </div>
                             </div>
                         </div>
                     ) : clientes.length > 0 ? (
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
-                                <h3 className="text-lg font-semibold text-gray-900">
+                                <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
                                     Clientes Registrados
-                                    <span className="ml-2 text-sm font-normal text-gray-500">
+                                    <span className="ml-2 text-sm font-normal" style={{ color: 'var(--text-secondary)' }}>
                                         ({totalCount} total)
                                     </span>
                                 </h3>
                             </div>
                             <div className="overflow-x-auto">
-                                <table className="min-w-full divide-y divide-gray-200">
-                                    <thead className="bg-gray-50">
+                                <table className="min-w-full" style={{ borderColor: 'var(--border)' }}>
+                                    <thead style={{ backgroundColor: 'var(--card-hover)' }}>
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                                                 Código
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                                                 Tipo
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                                                 Nombre
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                                                 Documento
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                                                 Email
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                                                 Teléfono
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                                                 Lista de Precios
                                             </th>
                                         </tr>
                                     </thead>
-                                    <tbody className="bg-white divide-y divide-gray-200">
+                                    <tbody style={{ borderColor: 'var(--border)' }}>
                                         {clientes.map((cliente) => (
-                                            <tr key={cliente.CustomerId} className="hover:bg-gray-50">
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                                            <tr key={cliente.CustomerId} className="transition-colors" style={{ borderTop: '1px solid var(--border)' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--card-hover)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium" style={{ color: 'var(--primary)' }}>
                                                     {cliente.SystemCode || '-'}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                                        isEmpresa(cliente)
-                                                            ? 'bg-green-100 text-green-800'
-                                                            : 'bg-blue-100 text-blue-800'
-                                                    }`}>
+                                                    <span className={`px-2 py-1 text-xs font-medium rounded-full`} style={isEmpresa(cliente) ? { backgroundColor: 'var(--success-bg)', color: 'var(--success)' } : { backgroundColor: 'var(--info-bg)', color: 'var(--info)' }}>
                                                         {isEmpresa(cliente) ? 'Empresa' : 'Particular'}
                                                     </span>
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--text-primary)' }}>
                                                     {getCustomerName(cliente)}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--text-secondary)' }}>
                                                     {getCustomerDocument(cliente)}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--text-secondary)' }}>
                                                     {cliente.Email || '-'}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--text-secondary)' }}>
                                                     {cliente.PhoneNumber || '-'}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm" style={{ color: 'var(--text-secondary)' }}>
                                                     {cliente.PriceList?.[0]?.PriceListName || '-'}
                                                 </td>
                                             </tr>
@@ -332,15 +343,18 @@ export default function ClientesPage() {
                             </div>
 
                             {/* Paginación */}
-                            <div className="flex justify-between items-center pt-4 border-t mt-4">
-                                    <div className="text-sm text-gray-500">
+                            <div className="flex justify-between items-center pt-4 mt-4" style={{ borderTop: '1px solid var(--border)' }}>
+                                    <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>
                                         Mostrando {clientes.length} de {totalCount} clientes - Página {currentPage} de {totalPages}
                                     </div>
                                     <div className="flex items-center gap-1">
                                         <button
                                             onClick={() => handlePageChange(1)}
                                             disabled={currentPage === 1}
-                                            className="px-2 py-1 border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                            className="px-2 py-1 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+                                            onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = 'var(--card-hover)')}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                             title="Primera página"
                                         >
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -350,7 +364,10 @@ export default function ClientesPage() {
                                         <button
                                             onClick={() => handlePageChange(currentPage - 1)}
                                             disabled={currentPage === 1}
-                                            className="px-3 py-1 border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                            className="px-3 py-1 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+                                            onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = 'var(--card-hover)')}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                         >
                                             Anterior
                                         </button>
@@ -372,15 +389,15 @@ export default function ClientesPage() {
                                                 }
 
                                                 for (let i = startPage; i <= endPage; i++) {
+                                                    const isActive = currentPage === i;
                                                     pages.push(
                                                         <button
                                                             key={i}
                                                             onClick={() => handlePageChange(i)}
-                                                            className={`min-w-[36px] px-3 py-1 border rounded-lg text-sm font-medium transition-colors ${
-                                                                currentPage === i
-                                                                    ? 'bg-blue-500 text-white border-blue-500'
-                                                                    : 'border-gray-300 hover:bg-gray-50 text-gray-700'
-                                                            }`}
+                                                            className={`min-w-[36px] px-3 py-1 border rounded-lg text-sm font-medium transition-colors`}
+                                                            style={isActive ? { backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)', borderColor: 'var(--primary)' } : { borderColor: 'var(--border)', color: 'var(--text-secondary)' }}
+                                                            onMouseEnter={(e) => !isActive && (e.currentTarget.style.backgroundColor = 'var(--card-hover)')}
+                                                            onMouseLeave={(e) => !isActive && (e.currentTarget.style.backgroundColor = 'transparent')}
                                                         >
                                                             {i}
                                                         </button>
@@ -393,14 +410,20 @@ export default function ClientesPage() {
                                         <button
                                             onClick={() => handlePageChange(currentPage + 1)}
                                             disabled={currentPage === totalPages}
-                                            className="px-3 py-1 border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                            className="px-3 py-1 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+                                            onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = 'var(--card-hover)')}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                         >
                                             Siguiente
                                         </button>
                                         <button
                                             onClick={() => handlePageChange(totalPages)}
                                             disabled={currentPage === totalPages}
-                                            className="px-2 py-1 border border-gray-300 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                                            className="px-2 py-1 rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            style={{ border: '1px solid var(--border)', color: 'var(--text-secondary)' }}
+                                            onMouseEnter={(e) => !e.currentTarget.disabled && (e.currentTarget.style.backgroundColor = 'var(--card-hover)')}
+                                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                             title="Última página"
                                         >
                                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -412,15 +435,15 @@ export default function ClientesPage() {
                         </div>
                     ) : (
                         <div className="text-center py-12">
-                            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{ backgroundColor: 'var(--card-hover)' }}>
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                             </div>
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">
+                            <h3 className="text-lg font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
                                 {searchText ? 'No se encontraron clientes' : 'No hay clientes registrados'}
                             </h3>
-                            <p className="text-gray-500 max-w-sm mx-auto">
+                            <p className="max-w-sm mx-auto" style={{ color: 'var(--text-secondary)' }}>
                                 {searchText
                                     ? 'Intenta con otros términos de búsqueda'
                                     : 'Comienza registrando tu primer cliente haciendo clic en el botón "Nuevo Cliente".'

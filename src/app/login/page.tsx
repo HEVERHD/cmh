@@ -82,64 +82,79 @@ export default function LoginPage() {
   const error = step === "company" ? tenantError : authError;
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <div className="absolute inset-0 opacity-30">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        background:
+          "linear-gradient(to bottom right, #1a1d24, #242832, #1a1d24)",
+      }}
+    >
+      <div className="absolute inset-0 opacity-20">
         <div
           className="absolute inset-0"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
           }}
         />
       </div>
 
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10">
         <div className="w-full max-w-md">
-          <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
+          <div
+            className="backdrop-blur-2xl rounded-3xl shadow-2xl overflow-hidden"
+            style={{
+              backgroundColor: "rgba(45, 50, 60, 0.6)",
+              border: "1px solid rgba(59, 130, 246, 0.3)",
+              boxShadow:
+                "0 25px 50px -12px rgba(59, 130, 246, 0.25), inset 0 1px 0 0 rgba(255, 255, 255, 0.05)",
+            }}
+          >
             <div className="px-6 pt-8 pb-6 text-center">
               {step === "credentials" && tenant ? (
                 <>
-                  {tenant.branding.logo ? (
-                    <img
-                      src={tenant.branding.logo}
-                      alt={tenant.name}
-                      className="mx-auto h-16 w-auto mb-4"
-                    />
-                  ) : (
-                    <div
-                      className="mx-auto h-16 w-16 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mb-4 shadow-lg"
-                      style={{ backgroundColor: tenant.branding.primaryColor }}
-                    >
-                      {tenant.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <h1 className="text-2xl font-bold text-white">
+                  <img
+                    src="/logo.png"
+                    alt="Club de Mercancías"
+                    className="mx-auto h-32 w-auto mb-6"
+                    style={{
+                      imageRendering: "-webkit-optimize-contrast",
+                      filter: "drop-shadow(0px 2px 8px rgba(0, 0, 0, 0.1))",
+                    }}
+                  />
+                  <h1
+                    className="text-2xl font-bold"
+                    style={{ color: "var(--text-primary)" }}
+                  >
                     {tenant.tradeName || tenant.name}
                   </h1>
-                  <p className="text-slate-300 mt-1 text-sm">
+                  <p
+                    className="mt-1 text-sm"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
                     Ingresa tus credenciales
                   </p>
                 </>
               ) : (
                 <>
-                  <div className="mx-auto h-16 w-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg mb-4">
-                    <svg
-                      className="w-8 h-8 text-white"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                      />
-                    </svg>
-                  </div>
-                  <h1 className="text-2xl font-bold text-white">
-                    Club de Mercancía
+                  <img
+                    src="/logo.png"
+                    alt="Club de Mercancías"
+                    className="mx-auto h-32 w-auto mb-6"
+                    style={{
+                      imageRendering: "-webkit-optimize-contrast",
+                      filter: "drop-shadow(0px 2px 8px rgba(0, 0, 0, 0.1))",
+                    }}
+                  />
+                  <h1
+                    className="text-2xl font-bold"
+                    style={{ color: "var(--text-primary)" }}
+                  >
+                    Club de Mercancías
                   </h1>
-                  <p className="text-slate-300 mt-1 text-sm">
+                  <p
+                    className="mt-1 text-sm"
+                    style={{ color: "var(--text-secondary)" }}
+                  >
                     Ingresa el nombre de tu compañía
                   </p>
                 </>
@@ -148,7 +163,14 @@ export default function LoginPage() {
 
             <div className="px-6 pb-8">
               {error && (
-                <div className="mb-4 p-3 bg-red-500/20 border border-red-500/30 rounded-xl flex items-start gap-3">
+                <div
+                  className="mb-4 p-3 rounded-xl flex items-start gap-3"
+                  style={{
+                    backgroundColor: "var(--error-bg)",
+                    border: "1px solid var(--error)",
+                    borderColor: "rgba(239, 68, 68, 0.3)",
+                  }}
+                >
                   <svg
                     className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5"
                     fill="none"
@@ -169,7 +191,10 @@ export default function LoginPage() {
               {step === "company" ? (
                 <form onSubmit={handleCompanySubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <label
+                      className="block text-sm font-medium mb-2"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       Nombre de la compañía
                     </label>
                     <div className="relative">
@@ -180,7 +205,23 @@ export default function LoginPage() {
                         placeholder="ej: cochez"
                         required
                         autoFocus
-                        className="w-full px-4 py-3.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        className="w-full px-4 py-3.5 rounded-xl focus:outline-none transition-all backdrop-blur-sm"
+                        style={{
+                          backgroundColor: "rgba(36, 40, 50, 0.6)",
+                          border: "1px solid rgba(58, 65, 80, 0.6)",
+                          color: "var(--text-primary)",
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.border = "2px solid var(--primary)";
+                          e.target.style.backgroundColor =
+                            "rgba(36, 40, 50, 0.8)";
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.border =
+                            "1px solid rgba(58, 65, 80, 0.6)";
+                          e.target.style.backgroundColor =
+                            "rgba(36, 40, 50, 0.6)";
+                        }}
                       />
                       <div className="absolute right-3 top-1/2 -translate-y-1/2">
                         <svg
@@ -202,7 +243,18 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isLoading || !companyName.trim()}
-                    className="w-full py-3.5 px-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-4 text-white font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    style={{
+                      background:
+                        "linear-gradient(to right, var(--primary), var(--primary-glow))",
+                      boxShadow: "0 10px 25px -5px rgba(59, 130, 246, 0.4)",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.transform = "translateY(-2px)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.transform = "translateY(0)")
+                    }
                   >
                     {isLoading ? (
                       <>
@@ -252,7 +304,14 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="flex items-center gap-1 text-slate-400 hover:text-white text-sm transition-colors mb-2"
+                    className="flex items-center gap-1 text-sm transition-colors mb-2"
+                    style={{ color: "var(--text-muted)" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.color = "var(--text-primary)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.color = "var(--text-muted)")
+                    }
                   >
                     <svg
                       className="w-4 h-4"
@@ -270,7 +329,10 @@ export default function LoginPage() {
                     Cambiar compañía
                   </button>
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <label
+                      className="block text-sm font-medium mb-2"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       Correo electrónico
                     </label>
                     <input
@@ -280,11 +342,30 @@ export default function LoginPage() {
                       placeholder="tu@email.com"
                       required
                       autoFocus
-                      className="form-control w-full px-4 py-3.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      className="form-control w-full px-4 py-3.5 rounded-xl focus:outline-none transition-all backdrop-blur-sm"
+                      style={{
+                        backgroundColor: "rgba(36, 40, 50, 0.6)",
+                        border: "1px solid rgba(58, 65, 80, 0.6)",
+                        color: "var(--text-primary)",
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.border = "2px solid var(--primary)";
+                        e.target.style.backgroundColor =
+                          "rgba(36, 40, 50, 0.8)";
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.border =
+                          "1px solid rgba(58, 65, 80, 0.6)";
+                        e.target.style.backgroundColor =
+                          "rgba(36, 40, 50, 0.6)";
+                      }}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-300 mb-2">
+                    <label
+                      className="block text-sm font-medium mb-2"
+                      style={{ color: "var(--text-secondary)" }}
+                    >
                       Contraseña
                     </label>
                     <div className="relative">
@@ -294,12 +375,35 @@ export default function LoginPage() {
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="••••••••"
                         required
-                        className="w-full px-4 py-3.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all pr-12"
+                        className="w-full px-4 py-3.5 rounded-xl focus:outline-none transition-all pr-12 backdrop-blur-sm"
+                        style={{
+                          backgroundColor: "rgba(36, 40, 50, 0.6)",
+                          border: "1px solid rgba(58, 65, 80, 0.6)",
+                          color: "var(--text-primary)",
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.border = "2px solid var(--primary)";
+                          e.target.style.backgroundColor =
+                            "rgba(36, 40, 50, 0.8)";
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.border =
+                            "1px solid rgba(58, 65, 80, 0.6)";
+                          e.target.style.backgroundColor =
+                            "rgba(36, 40, 50, 0.6)";
+                        }}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 transition-colors"
+                        style={{ color: "var(--text-muted)" }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.color = "var(--text-primary)")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.color = "var(--text-muted)")
+                        }
                       >
                         {showPassword ? (
                           <svg
@@ -345,13 +449,30 @@ export default function LoginPage() {
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500 focus:ring-offset-0"
+                        className="w-4 h-4 rounded focus:ring-offset-0 backdrop-blur-sm"
+                        style={{
+                          borderColor: "rgba(58, 65, 80, 0.6)",
+                          backgroundColor: "rgba(36, 40, 50, 0.6)",
+                          accentColor: "var(--primary)",
+                        }}
                       />
-                      <span className="text-sm text-slate-300">Recordarme</span>
+                      <span
+                        className="text-sm"
+                        style={{ color: "var(--text-secondary)" }}
+                      >
+                        Recordarme
+                      </span>
                     </label>
                     <a
                       href="/forgot-password"
-                      className="text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                      className="text-sm transition-colors"
+                      style={{ color: "var(--primary)" }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = "var(--primary-glow)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = "var(--primary)")
+                      }
                     >
                       ¿Olvidaste tu contraseña?
                     </a>
@@ -420,23 +541,41 @@ export default function LoginPage() {
               )}
             </div>
           </div>
-          <p className="text-center text-slate-500 text-xs mt-6">
+          <p
+            className="text-center text-xs mt-6"
+            style={{ color: "var(--text-muted)" }}
+          >
             Powered by{" "}
-            <span className="text-slate-400 font-medium">Aludra</span>
+            <span
+              className="font-medium"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              Hypernovalabs
+            </span>
           </p>
         </div>
       </div>
 
       <div className="flex justify-center gap-2 pb-6 relative z-10">
         <div
-          className={`h-1.5 w-8 rounded-full transition-all duration-300 ${
-            step === "company" ? "bg-blue-500" : "bg-white/20"
-          }`}
+          className="h-1.5 w-8 rounded-full transition-all duration-300"
+          style={{
+            backgroundColor:
+              step === "company" ? "var(--primary)" : "var(--border)",
+            boxShadow:
+              step === "company" ? "0 0 10px rgba(59, 130, 246, 0.5)" : "none",
+          }}
         />
         <div
-          className={`h-1.5 w-8 rounded-full transition-all duration-300 ${
-            step === "credentials" ? "bg-blue-500" : "bg-white/20"
-          }`}
+          className="h-1.5 w-8 rounded-full transition-all duration-300"
+          style={{
+            backgroundColor:
+              step === "credentials" ? "var(--primary)" : "var(--border)",
+            boxShadow:
+              step === "credentials"
+                ? "0 0 10px rgba(59, 130, 246, 0.5)"
+                : "none",
+          }}
         />
       </div>
     </div>

@@ -99,7 +99,7 @@ export const useAuthStore = create<AuthStore>()(
             id: data.userId || "",
             email: data.userName || params.email,
             name:
-              data.customerInfo?.CustomerName ||
+              data.customerInfo?.FirstName ||
               data.userName ||
               params.email.split("@")[0],
             role: role,
@@ -160,6 +160,14 @@ export const useAuthStore = create<AuthStore>()(
           isLoading: false,
           error: null,
         });
+
+        // Limpiar también el tenant store
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('tenant-storage');
+          // Forzar limpieza del estado del tenant
+          const tenantStore = require('./tenant-store').useTenantStore;
+          tenantStore.getState().clearTenant();
+        }
       },
 
       setUser: (user: User) => {

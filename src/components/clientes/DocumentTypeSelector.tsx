@@ -162,13 +162,20 @@ export default function DocumentTypeSelector({ value, onChange, customerTypeId, 
                     onFocus={handleInputFocus}
                     placeholder={isLoading ? 'Cargando tipos de documento...' : 'Buscar tipo de documento...'}
                     disabled={isLoading}
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                        error ? 'border-red-500' : 'border-gray-300'
-                    } ${isLoading ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+                    className="w-full px-4 py-2 rounded-lg focus:outline-none transition-all"
+                    style={{
+                        backgroundColor: isLoading ? 'var(--muted-bg)' : 'var(--input-bg)',
+                        border: error ? '1px solid var(--error)' : '1px solid var(--border)',
+                        color: 'var(--text-primary)',
+                        cursor: isLoading ? 'not-allowed' : 'text'
+                    }}
+                    onFocusCapture={(e) => e.currentTarget.style.border = '2px solid var(--primary)'}
+                    onBlur={(e) => e.currentTarget.style.border = error ? '1px solid var(--error)' : '1px solid var(--border)'}
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg
-                        className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
+                        className={`w-5 h-5 transition-transform ${isOpen ? 'transform rotate-180' : ''}`}
+                        style={{ color: 'var(--text-muted)' }}
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -179,7 +186,7 @@ export default function DocumentTypeSelector({ value, onChange, customerTypeId, 
             </div>
 
             {isOpen && !isLoading && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <div className="absolute z-50 w-full mt-1 rounded-lg shadow-lg max-h-60 overflow-y-auto" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
                     {filteredDocumentTypes.length > 0 ? (
                         <ul className="py-1">
                             {filteredDocumentTypes.map((docType) => (
@@ -187,16 +194,26 @@ export default function DocumentTypeSelector({ value, onChange, customerTypeId, 
                                     <button
                                         type="button"
                                         onClick={() => handleSelect(docType)}
-                                        className={`w-full text-left px-4 py-2 hover:bg-blue-50 transition-colors ${
-                                            selectedDocumentType?.DocumentTypeId === docType.DocumentTypeId
-                                                ? 'bg-blue-100 text-blue-700'
-                                                : 'text-gray-700'
-                                        }`}
+                                        className="w-full text-left px-4 py-2 transition-colors"
+                                        style={{
+                                            backgroundColor: selectedDocumentType?.DocumentTypeId === docType.DocumentTypeId ? 'var(--primary-light)' : 'transparent',
+                                            color: selectedDocumentType?.DocumentTypeId === docType.DocumentTypeId ? 'var(--primary)' : 'var(--text-primary)'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (selectedDocumentType?.DocumentTypeId !== docType.DocumentTypeId) {
+                                                e.currentTarget.style.backgroundColor = 'var(--card-hover)';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (selectedDocumentType?.DocumentTypeId !== docType.DocumentTypeId) {
+                                                e.currentTarget.style.backgroundColor = 'transparent';
+                                            }
+                                        }}
                                     >
                                         <div className="flex items-center justify-between">
                                             <span className="font-medium">{docType.Description}</span>
                                             {docType.Code && (
-                                                <span className="text-xs text-gray-500 ml-2">
+                                                <span className="text-xs ml-2" style={{ color: 'var(--text-muted)' }}>
                                                     {docType.Code}
                                                 </span>
                                             )}
@@ -206,7 +223,7 @@ export default function DocumentTypeSelector({ value, onChange, customerTypeId, 
                             ))}
                         </ul>
                     ) : (
-                        <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                        <div className="px-4 py-3 text-sm text-center" style={{ color: 'var(--text-secondary)' }}>
                             No se encontraron tipos de documento
                         </div>
                     )}
