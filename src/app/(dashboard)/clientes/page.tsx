@@ -1,7 +1,7 @@
 // src/app/(dashboard)/clientes/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import ClienteRegistroForm from '@/components/clientes/ClienteRegistroForm';
 import {
     registerCustomer,
@@ -27,6 +27,9 @@ export default function ClientesPage() {
     // Búsqueda
     const [searchText, setSearchText] = useState('');
     const [searchInput, setSearchInput] = useState('');
+
+    // Ref para prevenir doble llamado en desarrollo
+    const hasLoadedRef = useRef(false);
 
     // Función para cargar clientes
     const loadCustomers = useCallback(async (page: number = 1, search: string = '') => {
@@ -63,8 +66,12 @@ export default function ClientesPage() {
 
     // Cargar clientes al montar el componente
     useEffect(() => {
-        loadCustomers();
-    }, [loadCustomers]);
+        if (!hasLoadedRef.current) {
+            hasLoadedRef.current = true;
+            loadCustomers();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     // Manejar búsqueda
     const handleSearch = () => {
