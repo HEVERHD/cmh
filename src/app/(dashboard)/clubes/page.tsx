@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import {
-    Plus, Filter, Download, MoreHorizontal,
+    Filter, Download, MoreHorizontal,
     Eye, Edit, Trash2, Calendar, Loader2,
 } from 'lucide-react';
 import { useClubs, useClubTypes, useClubStatuses, useDenominations } from '@/lib/hooks/useClubs';
