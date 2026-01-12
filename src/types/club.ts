@@ -6,9 +6,13 @@ export interface Club {
     clubId: string;
     contractNumber: string;
     customerId: string;
+    customerName?: string; // Nombre del cliente expandido
+    customerNumber?: string; // Número del cliente
+    externalCode?: string;
     clubTypeId: string;
     denominationId: string;
     clubStatusId: string;
+    statusName?: string; // Nombre del estado expandido
     salesAgentId: string;
     storeId: string;
     saaSId: number;
@@ -23,10 +27,11 @@ export interface Club {
     startDate: string;
     finishDate: string;
     prizeDate?: string;
+    cancellationDate?: string;
     active: boolean;
-    status: number;
+    status?: number;
     createdDate: string;
-    createdBy: string;
+    createdBy?: string;
     lastModifiedDate?: string;
     lastModifiedBy?: string;
 }
