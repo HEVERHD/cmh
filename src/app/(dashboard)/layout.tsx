@@ -69,15 +69,58 @@ const Icons = {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
     ),
+    ChevronDown: () => (
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+    ),
+    Admin: () => (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+    ),
+    Products: () => (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+        </svg>
+    ),
+    Benefits: () => (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+        </svg>
+    ),
+    SpecialPrices: () => (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+    ),
 };
 
+// Type definitions for navigation
+type NavigationItem = {
+    name: string;
+    icon: () => React.ReactElement;
+} & (
+    | { href: string; submenu?: never }
+    | { submenu: Array<{ name: string; href: string; icon: () => React.ReactElement }>; href?: never }
+);
+
 // ✅ Rutas corregidas - sin /dashboard prefix
-const navigation = [
+const navigation: NavigationItem[] = [
     { name: 'Dashboard', href: '/', icon: Icons.Dashboard },
-    { name: 'Usuarios', href: '/usuarios', icon: Icons.Users },
     { name: 'Clientes', href: '/clientes', icon: Icons.Customers },
     { name: 'Clubes', href: '/clubes', icon: Icons.Club },
     { name: 'Reportes', href: '/reportes', icon: Icons.Reports },
+    {
+        name: 'Administración',
+        icon: Icons.Admin,
+        submenu: [
+            { name: 'Usuarios', href: '/usuarios', icon: Icons.Users },
+            { name: 'Productos', href: '/productos', icon: Icons.Products },
+            { name: 'Beneficios', href: '/beneficios', icon: Icons.Benefits },
+            { name: 'Precios especiales', href: '/precios-especiales', icon: Icons.SpecialPrices },
+        ]
+    },
     { name: 'Configuración', href: '/configuracion', icon: Icons.Settings },
 ];
 
@@ -86,6 +129,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const pathname = usePathname();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+    const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
 
     const { user, isAuthenticated, logout } = useAuthStore();
     const { tenant, clearTenant } = useTenantStore();
@@ -95,6 +139,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             router.replace('/login');
         }
     }, [isAuthenticated, router]);
+
+    // Auto-expandir submenú si la ruta actual está en él
+    useEffect(() => {
+        navigation.forEach((item) => {
+            if ('submenu' in item && item.submenu) {
+                const hasActiveSubmenu = item.submenu.some(
+                    (subItem) => pathname.startsWith(subItem.href)
+                );
+                if (hasActiveSubmenu) {
+                    setOpenSubmenu(item.name);
+                }
+            }
+        });
+    }, [pathname]);
 
     if (!isAuthenticated) {
         return (
@@ -111,10 +169,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     };
 
     // Encontrar el nombre de la página actual
-    const currentPage = navigation.find(n => {
-        if (n.href === '/') return pathname === '/';
-        return pathname.startsWith(n.href);
-    })?.name || 'Dashboard';
+    const currentPage = (() => {
+        for (const item of navigation) {
+            if ('submenu' in item && item.submenu) {
+                const submenuItem = item.submenu.find(sub => pathname.startsWith(sub.href));
+                if (submenuItem) return submenuItem.name;
+            } else if ('href' in item) {
+                if (item.href === '/') {
+                    if (pathname === '/') return item.name;
+                } else if (pathname.startsWith(item.href)) {
+                    return item.name;
+                }
+            }
+        }
+        return 'Dashboard';
+    })();
 
     return (
         <div className="min-h-screen" style={{ backgroundColor: 'var(--background)' }}>
@@ -139,6 +208,71 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                 <nav className={`p-3 space-y-1 ${sidebarCollapsed ? 'flex flex-col items-center' : ''}`}>
                     {navigation.map((item) => {
+                        // Si el item tiene submenú
+                        if ('submenu' in item && item.submenu) {
+                            const hasActiveSubmenu = item.submenu.some(
+                                (subItem) => pathname.startsWith(subItem.href)
+                            );
+                            const isOpen = openSubmenu === item.name;
+
+                            if (sidebarCollapsed) {
+                                // En modo colapsado, mostrar solo el icono con tooltip
+                                return (
+                                    <div key={item.name} className="relative group">
+                                        <button
+                                            className={`flex items-center justify-center p-3 w-12 rounded-lg text-sm font-medium transition-all ${hasActiveSubmenu ? 'text-white shadow-md' : ''}`}
+                                            style={hasActiveSubmenu ? { backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' } : { color: 'var(--text-secondary)' }}
+                                            onMouseEnter={(e) => !hasActiveSubmenu && (e.currentTarget.style.backgroundColor = 'var(--card-hover)')}
+                                            onMouseLeave={(e) => !hasActiveSubmenu && (e.currentTarget.style.backgroundColor = 'transparent')}
+                                            title={item.name}
+                                        >
+                                            <item.icon />
+                                        </button>
+                                    </div>
+                                );
+                            }
+
+                            return (
+                                <div key={item.name}>
+                                    <button
+                                        onClick={() => setOpenSubmenu(isOpen ? null : item.name)}
+                                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${hasActiveSubmenu ? 'text-white shadow-md' : ''}`}
+                                        style={hasActiveSubmenu ? { backgroundColor: 'var(--primary)', color: 'var(--primary-foreground)' } : { color: 'var(--text-secondary)' }}
+                                        onMouseEnter={(e) => !hasActiveSubmenu && (e.currentTarget.style.backgroundColor = 'var(--card-hover)')}
+                                        onMouseLeave={(e) => !hasActiveSubmenu && (e.currentTarget.style.backgroundColor = 'transparent')}
+                                    >
+                                        <item.icon />
+                                        <span className="flex-1 text-left">{item.name}</span>
+                                        <div className={`transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+                                            <Icons.ChevronDown />
+                                        </div>
+                                    </button>
+                                    {isOpen && (
+                                        <div className="ml-4 mt-1 space-y-1 border-l-2 pl-2" style={{ borderColor: 'var(--border)' }}>
+                                            {item.submenu.map((subItem) => {
+                                                const isSubActive = pathname.startsWith(subItem.href);
+                                                return (
+                                                    <Link
+                                                        key={subItem.name}
+                                                        href={subItem.href}
+                                                        onClick={() => setSidebarOpen(false)}
+                                                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${isSubActive ? 'font-semibold' : 'font-normal'}`}
+                                                        style={isSubActive ? { backgroundColor: 'var(--primary-light)', color: 'var(--primary)' } : { color: 'var(--text-secondary)' }}
+                                                        onMouseEnter={(e) => !isSubActive && (e.currentTarget.style.backgroundColor = 'var(--card-hover)')}
+                                                        onMouseLeave={(e) => !isSubActive && (e.currentTarget.style.backgroundColor = 'transparent')}
+                                                    >
+                                                        <subItem.icon />
+                                                        {subItem.name}
+                                                    </Link>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        }
+
+                        // Items normales sin submenú
                         const isActive = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
                         return (
                             <Link
