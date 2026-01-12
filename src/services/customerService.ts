@@ -123,7 +123,7 @@ const DEFAULT_CUSTOMER_GROUP = {
 const getTenant = (): number => {
   if (typeof window !== "undefined") {
     try {
-      const stored = localStorage.getItem("auth-storage");
+      const stored = sessionStorage.getItem("auth-storage");
       if (stored) {
         const parsed = JSON.parse(stored);
         return parsed?.state?.company?.tenantId || 2;
@@ -387,7 +387,7 @@ export interface SearchCustomersResponse {
 const getCompanyId = (): string => {
   if (typeof window !== "undefined") {
     try {
-      const stored = localStorage.getItem("auth-storage");
+      const stored = sessionStorage.getItem("auth-storage");
       if (stored) {
         const parsed = JSON.parse(stored);
         return parsed?.state?.company?.companyId || "AEE876CB-7183-4BEE-8FCA-984B7A1F6BA9";
@@ -403,7 +403,7 @@ const getCompanyId = (): string => {
 const getCompanyCode = (): string => {
   if (typeof window !== "undefined") {
     try {
-      const stored = localStorage.getItem("auth-storage");
+      const stored = sessionStorage.getItem("auth-storage");
       if (stored) {
         const parsed = JSON.parse(stored);
         return parsed?.state?.company?.companyCode || "CO";

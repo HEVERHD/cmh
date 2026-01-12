@@ -14,7 +14,7 @@ const SUBSCRIPTION_KEY = process.env.NEXT_PUBLIC_SUBSCRIPTION_KEY || "";
 const getAccessToken = (): string | undefined => {
   if (typeof window !== "undefined") {
     try {
-      const stored = localStorage.getItem("auth-storage");
+      const stored = sessionStorage.getItem("auth-storage");
       if (stored) {
         const parsed = JSON.parse(stored);
         const token = parsed?.state?.tokens?.accessToken;
@@ -53,7 +53,7 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     if (error.response?.status === 401) {
       if (typeof window !== "undefined") {
-        localStorage.removeItem("auth-storage");
+        sessionStorage.removeItem("auth-storage");
       }
       Cookies.remove("accessToken");
       Cookies.remove("tenantId");

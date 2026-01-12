@@ -130,15 +130,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+    const [isHydrated, setIsHydrated] = useState(false);
 
     const { user, isAuthenticated, logout } = useAuthStore();
     const { tenant, clearTenant } = useTenantStore();
 
+    // Esperar a que zustand se hidrate desde sessionStorage
     useEffect(() => {
-        if (!isAuthenticated) {
+        setIsHydrated(true);
+    }, []);
+
+    // Solo verificar autenticación después de hidratar
+    useEffect(() => {
+        if (isHydrated && !isAuthenticated) {
             router.replace('/login');
         }
-    }, [isAuthenticated, router]);
+    }, [isHydrated, isAuthenticated, router]);
 
     // Auto-expandir submenú si la ruta actual está en él
     useEffect(() => {
@@ -154,10 +161,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         });
     }, [pathname]);
 
+    // Mostrar loading mientras se hidrata el estado
+    if (!isHydrated) {
+        return (
+            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
+                <div className="text-center">
+                    <div className="w-10 h-10 border-3 rounded-full animate-spin mx-auto mb-3" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
+                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Cargando...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Después de hidratar, verificar autenticación
     if (!isAuthenticated) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-100">
-                <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
+                <div className="w-8 h-8 border-4 rounded-full animate-spin" style={{ borderColor: 'var(--primary)', borderTopColor: 'transparent' }} />
             </div>
         );
     }

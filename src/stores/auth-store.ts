@@ -1,7 +1,7 @@
 // src/stores/auth-store.ts
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import Cookies from "js-cookie";
 import { loginUser, getErrorMessage, LoginParams } from "@/lib/api/client";
 import type { User, AuthTokens, AuthState } from "@/types/auth";
@@ -163,7 +163,9 @@ export const useAuthStore = create<AuthStore>()(
 
         // Limpiar también el tenant store
         if (typeof window !== 'undefined') {
-          localStorage.removeItem('tenant-storage');
+          // Limpiar sessionStorage en lugar de localStorage
+          sessionStorage.removeItem('tenant-storage');
+          sessionStorage.removeItem('auth-storage');
           // Forzar limpieza del estado del tenant
           const tenantStore = require('./tenant-store').useTenantStore;
           tenantStore.getState().clearTenant();
@@ -185,11 +187,9 @@ export const useAuthStore = create<AuthStore>()(
     }),
     {
       name: "auth-storage",
-      partialize: (state) => ({
-        user: state.user,
-        tokens: state.tokens,
-        isAuthenticated: state.isAuthenticated,
-      }),
+      // Usar sessionStorage en lugar de localStorage
+      // Esto hace que la sesión persista solo mientras la ventana esté abierta
+      storage: createJSONStorage(() => sessionStorage),
     }
   )
 );
