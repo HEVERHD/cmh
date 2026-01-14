@@ -5,15 +5,17 @@ import {
     Filter, Download, MoreHorizontal,
     Eye, Edit, Trash2, Calendar, Loader2,
 } from 'lucide-react';
-import { useClubs, useClubTypes, useClubStatuses, useDenominations } from '@/lib/hooks/useClubs';
+import { useClubs, useClubTypes, useClubStatuses, useDenominations, useCreateClub } from '@/lib/hooks/useClubs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ClubCreateModal } from '@/components/clubes/ClubCreateModal';
 import { ClubDetailSheet } from '@/components/clubes/ClubDetailSheet';
 import { formatCurrency, formatDate } from '@/lib/utils';
 import { ClubFilters } from '@/types/club';
 import { Badge } from '@/components/ui/badge';
+import { ClienteSearchSelect } from '@/components/shared/ClienteSearchSelect';
+import { DEFAULT_VALUES } from '@/lib/data/mockData';
+import { toast } from 'sonner';
 
 const statusColors: Record<string, { bg: string; text: string }> = {
     activo: { bg: 'var(--success-bg)', text: 'var(--success)' },
@@ -28,8 +30,21 @@ export default function ClubesPage() {
     const [filters, setFilters] = useState<ClubFilters>({});
     const [searchInput, setSearchInput] = useState('');
     const [showFilters, setShowFilters] = useState(false);
-    const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [showCreateForm, setShowCreateForm] = useState(false);
     const [selectedClub, setSelectedClub] = useState<any>(null);
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    // Form state
+    const [formData, setFormData] = useState({
+        customerId: '',
+        clubTypeId: '',
+        denominationId: '',
+        share: 1,
+        startDate: new Date().toISOString().split('T')[0],
+    });
+    const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [isSaving, setIsSaving] = useState(false);
 
     // Ref para prevenir doble llamado en desarrollo
     const hasLoadedRef = useRef(false);
@@ -38,6 +53,7 @@ export default function ClubesPage() {
     const { data: clubTypes } = useClubTypes();
     const { data: clubStatuses } = useClubStatuses();
     const { data: denominations } = useDenominations();
+    const createMutation = useCreateClub();
 
     // Prevenir doble llamado inicial
     useEffect(() => {
@@ -74,6 +90,117 @@ export default function ClubesPage() {
     const totalPages = clubsData?.totalPages || 1;
     const totalCount = clubsData?.total || 0;
 
+    // Validación del formulario
+    const validateForm = () => {
+        const errors: Record<string, string> = {};
+
+        if (!formData.customerId.trim()) {
+            errors.customerId = 'Cliente es requerido';
+        }
+        if (!formData.clubTypeId.trim()) {
+            errors.clubTypeId = 'Tipo de club es requerido';
+        }
+        if (!formData.denominationId.trim()) {
+            errors.denominationId = 'Denominación es requerida';
+        }
+        if (formData.share < 1 || formData.share > 99) {
+            errors.share = 'Share debe estar entre 1 y 99';
+        }
+        if (!formData.startDate.trim()) {
+            errors.startDate = 'Fecha de inicio es requerida';
+        }
+
+        setFormErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    // Abrir formulario
+    const openCreateForm = () => {
+        setFormData({
+            customerId: '',
+            clubTypeId: '',
+            denominationId: '',
+            share: 1,
+            startDate: new Date().toISOString().split('T')[0],
+        });
+        setFormErrors({});
+        setShowCreateForm(true);
+    };
+
+    // Cerrar formulario
+    const closeCreateForm = () => {
+        setShowCreateForm(false);
+        setFormData({
+            customerId: '',
+            clubTypeId: '',
+            denominationId: '',
+            share: 1,
+            startDate: new Date().toISOString().split('T')[0],
+        });
+        setFormErrors({});
+    };
+
+    // Manejar cambios en inputs
+    const handleInputChange = (name: string, value: any) => {
+        setFormData(prev => ({ ...prev, [name]: value }));
+        if (formErrors[name]) {
+            setFormErrors(prev => ({ ...prev, [name]: '' }));
+        }
+    };
+
+    // Calcular información adicional
+    const getShareLimit = (share: number) => {
+        if (share >= 1 && share <= 39) return 100;
+        if (share >= 40 && share <= 99) return 300;
+        return 0;
+    };
+
+    const selectedDenomination = denominations?.find(
+        (d) => d.denominationId === formData.denominationId
+    );
+    const weeklyAmount = selectedDenomination?.value || 0;
+    const totalAmount = weeklyAmount * 52;
+
+    // Enviar formulario
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
+
+        setIsSaving(true);
+        try {
+            const now = new Date();
+            const timeStr = now.toTimeString().split(' ')[0] + '.000';
+            const formattedDate = `${formData.startDate} ${timeStr}`;
+
+            await createMutation.mutateAsync({
+                ...formData,
+                startDate: formattedDate,
+                saaSId: DEFAULT_VALUES.saaSId,
+                salesAgentId: DEFAULT_VALUES.salesAgentId,
+                storeId: DEFAULT_VALUES.storeId,
+            });
+
+            toast.success('Club creado exitosamente');
+            closeCreateForm();
+            setSuccessMessage('Club creado exitosamente');
+            refetch();
+            setTimeout(() => setSuccessMessage(null), 5000);
+        } catch (err: any) {
+            console.error('Error creando club:', err);
+            const errorMessage = err?.message || 'Error al crear club';
+            toast.error('Error al crear club', {
+                description: errorMessage,
+            });
+            setError(errorMessage);
+            setTimeout(() => setError(null), 5000);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -82,19 +209,320 @@ export default function ClubesPage() {
                     <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Gestión de Clubes</h1>
                     <p className="mt-1" style={{ color: 'var(--text-secondary)' }}>Administra clubes, semanas y transacciones</p>
                 </div>
-                <button
-                    onClick={() => setCreateModalOpen(true)}
-                    className="px-4 py-2 text-white rounded-lg transition-colors"
-                    style={{ backgroundColor: 'var(--primary)' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-glow)'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
-                >
-                    + Nuevo Club
-                </button>
+                {!showCreateForm && (
+                    <button
+                        onClick={openCreateForm}
+                        className="px-4 py-2 text-white rounded-lg transition-colors"
+                        style={{ backgroundColor: 'var(--primary)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--primary-glow)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--primary)'}
+                    >
+                        + Nuevo Club
+                    </button>
+                )}
             </div>
 
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Mensajes de éxito/error */}
+            {successMessage && (
+                <div className="px-4 py-3 rounded-lg flex items-center" style={{ backgroundColor: 'var(--success-bg)', border: '1px solid var(--success)', color: 'var(--success)' }}>
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {successMessage}
+                </div>
+            )}
+
+            {error && (
+                <div className="px-4 py-3 rounded-lg flex items-center" style={{ backgroundColor: 'var(--error-bg)', border: '1px solid var(--error)', color: 'var(--error)' }}>
+                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    {error}
+                    <button
+                        onClick={() => setError(null)}
+                        className="ml-auto transition-colors"
+                        style={{ color: 'var(--error)' }}
+                        onMouseEnter={(e) => e.currentTarget.style.opacity = '0.7'}
+                        onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            )}
+
+            {/* Formulario de creación (si está activo) */}
+            {showCreateForm ? (
+                <div className="rounded-xl p-8 shadow-sm relative" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
+                    {isSaving && (
+                        <div className="absolute inset-0 backdrop-blur-sm flex items-center justify-center z-10 rounded-xl" style={{ backgroundColor: 'rgba(26, 29, 36, 0.95)' }}>
+                            <div className="flex flex-col items-center p-8 rounded-2xl shadow-xl" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border-accent)' }}>
+                                <div className="relative">
+                                    <div className="w-16 h-16 border-4 rounded-full" style={{ borderColor: 'var(--border)' }}></div>
+                                    <div className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin absolute top-0 left-0" style={{ borderColor: 'var(--primary)' }}></div>
+                                </div>
+                                <p className="mt-4 text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>Creando club</p>
+                                <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>Por favor espere un momento...</p>
+                            </div>
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSubmit}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Cliente */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                                    Cliente <span style={{ color: 'var(--error)' }}>*</span>
+                                </label>
+                                <ClienteSearchSelect
+                                    onChange={(value) => handleInputChange('customerId', value)}
+                                    error={formErrors.customerId}
+                                />
+                            </div>
+
+                            {/* Tipo de Club */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                                    Tipo de Club <span style={{ color: 'var(--error)' }}>*</span>
+                                </label>
+                                <Select
+                                    value={formData.clubTypeId}
+                                    onValueChange={(v) => handleInputChange('clubTypeId', v)}
+                                >
+                                    <SelectTrigger
+                                        style={{
+                                            border: formErrors.clubTypeId ? '1px solid var(--error)' : undefined,
+                                        }}
+                                    >
+                                        <SelectValue placeholder="Seleccionar tipo" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {clubTypes?.map((type) => (
+                                            <SelectItem key={type.clubTypeId} value={type.clubTypeId}>
+                                                {type.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {formErrors.clubTypeId && (
+                                    <p className="text-xs mt-1" style={{ color: 'var(--error)' }}>{formErrors.clubTypeId}</p>
+                                )}
+                            </div>
+
+                            {/* Denominación */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                                    Denominación <span style={{ color: 'var(--error)' }}>*</span>
+                                </label>
+                                <Select
+                                    value={formData.denominationId}
+                                    onValueChange={(v) => handleInputChange('denominationId', v)}
+                                >
+                                    <SelectTrigger
+                                        style={{
+                                            border: formErrors.denominationId ? '1px solid var(--error)' : undefined,
+                                        }}
+                                    >
+                                        <SelectValue placeholder="Seleccionar denominación" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {denominations?.map((d) => (
+                                            <SelectItem key={d.denominationId} value={d.denominationId}>
+                                                ${d.value} semanal
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                {formErrors.denominationId && (
+                                    <p className="text-xs mt-1" style={{ color: 'var(--error)' }}>{formErrors.denominationId}</p>
+                                )}
+                            </div>
+
+                            {/* Share */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                                    Share (1-99) <span style={{ color: 'var(--error)' }}>*</span>
+                                </label>
+                                <style dangerouslySetInnerHTML={{
+                                    __html: `
+                                        .share-custom-input::-webkit-inner-spin-button,
+                                        .share-custom-input::-webkit-outer-spin-button {
+                                            -webkit-appearance: none;
+                                            margin: 0;
+                                            display: none;
+                                        }
+                                        .share-custom-input {
+                                            -moz-appearance: textfield;
+                                        }
+                                    `
+                                }} />
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="number"
+                                        min={1}
+                                        max={99}
+                                        value={formData.share}
+                                        onChange={(e) => {
+                                            const val = parseInt(e.target.value);
+                                            if (!isNaN(val) && val >= 1 && val <= 99) {
+                                                handleInputChange('share', val);
+                                            }
+                                        }}
+                                        className="share-custom-input flex-1 px-4 py-2.5 rounded-lg focus:outline-none transition-all text-center font-semibold"
+                                        style={{
+                                            backgroundColor: 'var(--input-bg)',
+                                            border: formErrors.share ? '1px solid var(--error)' : '1px solid var(--border)',
+                                            color: 'var(--text-primary)'
+                                        }}
+                                        onFocus={(e) => !formErrors.share && (e.currentTarget.style.border = '2px solid var(--primary)')}
+                                        onBlur={(e) => !formErrors.share && (e.currentTarget.style.border = '1px solid var(--border)')}
+                                    />
+                                    <div className="flex rounded-lg overflow-hidden" style={{ border: '1px solid var(--border)' }}>
+                                        <button
+                                            type="button"
+                                            onClick={() => formData.share > 1 && handleInputChange('share', formData.share - 1)}
+                                            disabled={formData.share <= 1}
+                                            className="w-9 h-10 flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                            style={{
+                                                backgroundColor: 'var(--card)',
+                                                borderRight: '1px solid var(--border)',
+                                                color: 'var(--text-primary)'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                if (formData.share > 1) {
+                                                    e.currentTarget.style.backgroundColor = 'var(--card-hover)';
+                                                }
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.backgroundColor = 'var(--card)';
+                                            }}
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => formData.share < 99 && handleInputChange('share', formData.share + 1)}
+                                            disabled={formData.share >= 99}
+                                            className="w-9 h-10 flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                                            style={{
+                                                backgroundColor: 'var(--card)',
+                                                color: 'var(--text-primary)'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                if (formData.share < 99) {
+                                                    e.currentTarget.style.backgroundColor = 'var(--card-hover)';
+                                                }
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.currentTarget.style.backgroundColor = 'var(--card)';
+                                            }}
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                                {formErrors.share && (
+                                    <p className="text-xs mt-1" style={{ color: 'var(--error)' }}>{formErrors.share}</p>
+                                )}
+                                <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+                                    Límite: {getShareLimit(formData.share)}
+                                </p>
+                            </div>
+
+                            {/* Fecha de Inicio */}
+                            <div>
+                                <label className="block text-sm font-medium mb-2" style={{ color: 'var(--text-primary)' }}>
+                                    Fecha de Inicio <span style={{ color: 'var(--error)' }}>*</span>
+                                </label>
+                                <style dangerouslySetInnerHTML={{
+                                    __html: `
+                                        .date-input::-webkit-calendar-picker-indicator {
+                                            cursor: pointer;
+                                            border-radius: 4px;
+                                            padding: 4px;
+                                            transition: all 0.2s;
+                                            filter: invert(0.6);
+                                        }
+                                        .date-input::-webkit-calendar-picker-indicator:hover {
+                                            background-color: var(--card-hover);
+                                            filter: invert(0.8);
+                                        }
+                                    `
+                                }} />
+                                <input
+                                    type="date"
+                                    value={formData.startDate}
+                                    onChange={(e) => handleInputChange('startDate', e.target.value)}
+                                    className="date-input w-full px-4 py-2.5 rounded-lg focus:outline-none transition-all"
+                                    style={{
+                                        backgroundColor: 'var(--input-bg)',
+                                        border: formErrors.startDate ? '1px solid var(--error)' : '1px solid var(--border)',
+                                        color: 'var(--text-primary)',
+                                        colorScheme: 'dark'
+                                    }}
+                                    onFocus={(e) => !formErrors.startDate && (e.currentTarget.style.border = '2px solid var(--primary)')}
+                                    onBlur={(e) => !formErrors.startDate && (e.currentTarget.style.border = '1px solid var(--border)')}
+                                />
+                                {formErrors.startDate && (
+                                    <p className="text-xs mt-1" style={{ color: 'var(--error)' }}>{formErrors.startDate}</p>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Resumen */}
+                        {formData.denominationId && (
+                            <div className="mt-4 p-4 rounded-lg" style={{ backgroundColor: 'var(--input-bg)', border: '1px solid var(--border)' }}>
+                                <h4 className="font-medium text-sm mb-2" style={{ color: 'var(--text-primary)' }}>Resumen</h4>
+                                <div className="grid grid-cols-2 gap-2 text-sm">
+                                    <span style={{ color: 'var(--text-secondary)' }}>Semanal:</span>
+                                    <span className="font-medium" style={{ color: 'var(--text-primary)' }}>${weeklyAmount}</span>
+                                    <span style={{ color: 'var(--text-secondary)' }}>Total (52 sem):</span>
+                                    <span className="font-medium" style={{ color: 'var(--text-primary)' }}>${totalAmount}</span>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Alerta para shares altos */}
+                        {formData.share >= 40 && (
+                            <div className="mt-4 px-4 py-3 rounded-lg flex items-start" style={{ backgroundColor: 'var(--warning-bg)', border: '1px solid var(--warning)', color: 'var(--warning)' }}>
+                                <svg className="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <span className="text-sm">Shares 40-99 tienen límite de 300 participantes.</span>
+                            </div>
+                        )}
+
+                        {/* Botones de acción */}
+                        <div className="flex justify-end gap-3 mt-6">
+                            <button
+                                type="button"
+                                onClick={closeCreateForm}
+                                disabled={isSaving}
+                                className="px-4 py-2.5 rounded-lg font-medium transition-all"
+                                style={{ border: '1px solid var(--border)', color: 'var(--text-primary)', backgroundColor: 'var(--card)' }}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isSaving}
+                                className="px-4 py-2.5 rounded-lg font-medium transition-all flex items-center gap-2 disabled:opacity-50 text-white"
+                                style={{ backgroundColor: 'var(--primary)' }}
+                            >
+                                Crear Club
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            ) : (
+                <>
+                    {/* Stats Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: 'var(--card)', border: '1px solid var(--border)' }}>
                     <div className="pb-2">
                         <h3 className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Total Clubes</h3>
@@ -471,8 +899,9 @@ export default function ClubesPage() {
                     </div>
                 )}
             </div>
+                </>
+            )}
 
-            <ClubCreateModal open={createModalOpen} onOpenChange={setCreateModalOpen} />
             <ClubDetailSheet club={selectedClub} onClose={() => setSelectedClub(null)} />
         </div>
     );

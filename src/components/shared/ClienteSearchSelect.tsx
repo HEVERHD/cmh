@@ -3,9 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Search, Loader2, User, X } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { useClientesSearch } from '@/lib/hooks/useClientes';
-import { cn } from '@/lib/utils';
 
 interface ClienteOption {
     value: string;
@@ -15,7 +13,6 @@ interface ClienteOption {
 }
 
 interface Props {
-    value?: string;
     onChange: (value: string, cliente?: ClienteOption) => void;
     placeholder?: string;
     disabled?: boolean;
@@ -23,7 +20,6 @@ interface Props {
 }
 
 export function ClienteSearchSelect({
-    value,
     onChange,
     placeholder = 'Buscar cliente por nombre, email o teléfono...',
     disabled,
@@ -64,16 +60,23 @@ export function ClienteSearchSelect({
         <div ref={containerRef} className="relative">
             {/* Input de búsqueda o cliente seleccionado */}
             {selectedCliente ? (
-                <div className={cn(
-                    "flex items-center justify-between px-3 py-2 border rounded-md bg-gray-50",
-                    error && "border-red-500"
-                )}>
+                <div
+                    className="flex items-center justify-between px-4 py-2.5 rounded-lg"
+                    style={{
+                        backgroundColor: 'var(--input-bg)',
+                        border: error ? '1px solid var(--error)' : '1px solid var(--border)',
+                    }}
+                >
                     <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-gray-400" />
+                        <User className="h-4 w-4" style={{ color: 'var(--primary)' }} />
                         <div>
-                            <p className="text-sm font-medium">{selectedCliente.label}</p>
+                            <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                                {selectedCliente.label}
+                            </p>
                             {selectedCliente.email && (
-                                <p className="text-xs text-gray-500">{selectedCliente.email}</p>
+                                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                                    {selectedCliente.email}
+                                </p>
                             )}
                         </div>
                     </div>
@@ -81,39 +84,66 @@ export function ClienteSearchSelect({
                         <button
                             type="button"
                             onClick={handleClear}
-                            className="p-1 hover:bg-gray-200 rounded"
+                            className="p-1 rounded transition-colors"
+                            style={{ color: 'var(--text-muted)' }}
+                            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--card-hover)'}
+                            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                         >
-                            <X className="h-4 w-4 text-gray-400" />
+                            <X className="h-4 w-4" />
                         </button>
                     )}
                 </div>
             ) : (
                 <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                    <Input
+                    <Search
+                        className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4"
+                        style={{ color: 'var(--text-muted)' }}
+                    />
+                    <input
+                        type="text"
                         value={searchTerm}
                         onChange={(e) => {
                             setSearchTerm(e.target.value);
                             setIsOpen(true);
                         }}
-                        onFocus={() => setIsOpen(true)}
+                        onFocus={(e) => {
+                            setIsOpen(true);
+                            if (!error) e.currentTarget.style.border = '2px solid var(--primary)';
+                        }}
+                        onBlur={(e) => {
+                            if (!error) e.currentTarget.style.border = '1px solid var(--border)';
+                        }}
                         placeholder={placeholder}
                         disabled={disabled}
-                        className={cn("pl-9", error && "border-red-500")}
+                        className="w-full px-4 py-2.5 pl-9 rounded-lg focus:outline-none transition-all"
+                        style={{
+                            backgroundColor: 'var(--input-bg)',
+                            border: error ? '1px solid var(--error)' : '1px solid var(--border)',
+                            color: 'var(--text-primary)',
+                        }}
                     />
                     {isLoading && (
-                        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-gray-400" />
+                        <Loader2
+                            className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin"
+                            style={{ color: 'var(--text-muted)' }}
+                        />
                     )}
                 </div>
             )}
 
             {/* Dropdown de resultados */}
             {isOpen && searchTerm.length >= 2 && (
-                <div className="absolute z-50 w-full mt-1 bg-white border rounded-md shadow-lg max-h-60 overflow-auto">
+                <div
+                    className="absolute z-50 w-full mt-1 rounded-lg shadow-lg max-h-60 overflow-auto"
+                    style={{
+                        backgroundColor: 'var(--card)',
+                        border: '1px solid var(--border)',
+                    }}
+                >
                     {isLoading ? (
                         <div className="flex items-center justify-center py-4">
-                            <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
-                            <span className="ml-2 text-sm text-gray-500">Buscando...</span>
+                            <Loader2 className="h-5 w-5 animate-spin" style={{ color: 'var(--text-muted)' }} />
+                            <span className="ml-2 text-sm" style={{ color: 'var(--text-secondary)' }}>Buscando...</span>
                         </div>
                     ) : clientes && clientes.length > 0 ? (
                         <ul>
@@ -121,10 +151,15 @@ export function ClienteSearchSelect({
                                 <li
                                     key={cliente.value}
                                     onClick={() => handleSelect(cliente)}
-                                    className="px-3 py-2 hover:bg-gray-100 cursor-pointer border-b last:border-0"
+                                    className="px-3 py-2 cursor-pointer transition-colors"
+                                    style={{ borderBottom: '1px solid var(--border)' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--card-hover)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                 >
-                                    <p className="text-sm font-medium">{cliente.label}</p>
-                                    <div className="flex gap-3 text-xs text-gray-500">
+                                    <p className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+                                        {cliente.label}
+                                    </p>
+                                    <div className="flex gap-3 text-xs" style={{ color: 'var(--text-secondary)' }}>
                                         {cliente.email && <span>{cliente.email}</span>}
                                         {cliente.phone && <span>{cliente.phone}</span>}
                                     </div>
@@ -132,7 +167,7 @@ export function ClienteSearchSelect({
                             ))}
                         </ul>
                     ) : (
-                        <div className="py-4 text-center text-sm text-gray-500">
+                        <div className="py-4 text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
                             No se encontraron clientes
                         </div>
                     )}
@@ -141,12 +176,10 @@ export function ClienteSearchSelect({
 
             {/* Mensaje de ayuda */}
             {!selectedCliente && !isOpen && searchTerm.length === 0 && (
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
                     Escribe al menos 2 caracteres para buscar
                 </p>
             )}
-
-            {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
         </div>
     );
 }
