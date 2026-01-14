@@ -44,16 +44,18 @@ export const clubKeys = {
 export function useClubs(
     filters: ClubFilters = {},
     page = 1,
-    pageSize = 10
+    pageSize = 10,
+    options?: { enabled?: boolean }
 ) {
     return useQuery({
         queryKey: clubKeys.list(filters, page, pageSize),
         queryFn: () => clubApi.getClubs(filters, page, pageSize),
         staleTime: 5 * 60 * 1000, // 5 minutos
-        gcTime: 30 * 60 * 1000, // 30 minutos en caché  
+        gcTime: 30 * 60 * 1000, // 30 minutos en caché
         placeholderData: (prev) => prev,
         retry: 1,
         refetchOnWindowFocus: false,
+        enabled: options?.enabled ?? true,
     });
 }
 // Obtener un club por ID

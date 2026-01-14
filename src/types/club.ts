@@ -162,6 +162,7 @@ export interface ClubFilters {
     search?: string;
     clubTypeId?: string;
     clubStatusId?: string;
+    statusName?: string;
     denominationId?: string;
     storeId?: string;
     salesAgentId?: string;

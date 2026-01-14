@@ -15,10 +15,10 @@ export const clubApi = {
     async getClubs(filters: ClubFilters = {}, page = 1, pageSize = 20): Promise<PaginatedClubs> {
         try {
             const payload = {
-                SearchText: filters.search || "",
+                SearchText: filters.search || null,
                 PageNumber: page,
                 PageSize: pageSize,
-                Status: null,
+                Status: filters.statusName || null,
             };
 
             console.log('🔍 Buscando clubes:', payload);
@@ -156,7 +156,28 @@ export const clubApi = {
     },
 
     async getClubStatuses(): Promise<ClubStatus[]> {
-        return Promise.resolve(mockClubStatuses);
+        try {
+            const { data: response } = await mdl05Client.get(`${BASE_URL}/getClubStatus`);
+            console.log('📦 Respuesta estados de club:', response);
+
+            // La respuesta puede venir como array directo o dentro de una propiedad
+            const dataArray = Array.isArray(response) ? response : (response?.Data || response?.data || []);
+
+            // Mapear la respuesta del API al formato esperado
+            const statuses: ClubStatus[] = dataArray.map((status: any) => ({
+                clubStatusId: status.ClubStatusId || '',
+                name: status.NameStatus || '',
+                description: status.Description || '',
+                color: status.Color || '',
+            }));
+
+            console.log('✅ Estados de club mapeados:', statuses);
+            return statuses;
+        } catch (error) {
+            console.error('❌ Error al obtener estados de club:', error);
+            // Fallback a mock data en caso de error
+            return mockClubStatuses;
+        }
     },
 
     async getDenominations(): Promise<Denomination[]> {
