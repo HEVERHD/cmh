@@ -214,13 +214,32 @@ export const clubApi = {
     // ==========================================
     // Sorteos
     // ==========================================
-    async getDraws(clubTypeId?: string, dateFrom?: string, dateTo?: string): Promise<Draw[]> {
-        const params = new URLSearchParams();
-        if (clubTypeId) params.append('clubTypeId', clubTypeId);
-        if (dateFrom) params.append('dateFrom', dateFrom);
-        if (dateTo) params.append('dateTo', dateTo);
-        const { data } = await mdl05Client.get(`${BASE_URL}/getDraws?${params}`);
-        return data;
+    async getDraws(): Promise<Draw[]> {
+        try {
+            const { data: response } = await mdl05Client.get(`${BASE_URL}/Draw/Get/DrawId/null`);
+            console.log('📦 Respuesta sorteos:', response);
+
+            // La respuesta puede venir como array directo o dentro de una propiedad
+            const dataArray = Array.isArray(response) ? response : (response?.Data || response?.data || []);
+
+            // Mapear la respuesta del API al formato esperado
+            const draws: Draw[] = dataArray.map((draw: any) => ({
+                drawId: draw.DrawId || draw.drawId || '',
+                date: draw.Date || draw.date || '',
+                numberPlayed: draw.NumberPlayed ?? draw.numberPlayed,
+                alternativeDate: draw.AlternativeDate || draw.alternativeDate,
+                clubTypeId: draw.ClubTypeId || draw.clubTypeId || '',
+                comment: draw.Comment || draw.comment,
+                createdDate: draw.CreatedDate || draw.createdDate || '',
+                lastModifiedDate: draw.LastModifiedDate || draw.lastModifiedDate,
+            }));
+
+            console.log('✅ Sorteos mapeados:', draws);
+            return draws;
+        } catch (error) {
+            console.error('❌ Error al obtener sorteos:', error);
+            return [];
+        }
     },
 
     async registerDraw(drawData: { date: string; numberPlayed: number; clubTypeId: string }): Promise<Draw> {
@@ -267,5 +286,29 @@ export const clubApi = {
     async getClubStats(clubId: string): Promise<any> {
         const { data } = await mdl05Client.get(`${BASE_URL}/getClubStats/${clubId}`);
         return data;
+    },
+
+    // ==========================================
+    // Reportes
+    // ==========================================
+    async getReport1(lotteryDate: string): Promise<any> {
+        try {
+            console.log('📊 Generando reporte para fecha:', lotteryDate);
+
+            const response = await mdl05Client.post(`${BASE_URL}/GetReport1`, {
+                LotteryDate: lotteryDate
+            }, {
+                responseType: 'blob'
+            });
+
+            console.log('✅ Reporte generado - Headers:', response.headers);
+            console.log('✅ Reporte generado - Data type:', typeof response.data);
+            console.log('✅ Reporte generado - Data:', response.data);
+
+            return response;
+        } catch (error) {
+            console.error('❌ Error al generar reporte:', error);
+            throw error;
+        }
     },
 };

@@ -110,6 +110,7 @@ export interface Draw {
     numberPlayed?: number;
     alternativeDate?: string;
     clubTypeId: string;
+    comment?: string;
     createdDate: string;
     lastModifiedDate?: string;
 }

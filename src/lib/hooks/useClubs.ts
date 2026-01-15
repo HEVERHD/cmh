@@ -171,14 +171,11 @@ export function useLimitNumbers() {
 // Hooks para Sorteos
 // ==========================================
 
-export function useDraws(
-    clubTypeId?: string,
-    dateFrom?: string,
-    dateTo?: string
-) {
+export function useDraws() {
     return useQuery({
-        queryKey: clubKeys.draws(clubTypeId, dateFrom, dateTo),
-        queryFn: () => clubApi.getDraws(clubTypeId, dateFrom, dateTo),
+        queryKey: ['draws'],
+        queryFn: () => clubApi.getDraws(),
+        staleTime: 5 * 60 * 1000, // 5 minutos
     });
 }
 
