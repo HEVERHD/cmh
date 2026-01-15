@@ -4,7 +4,7 @@
 import { useAuthStore } from '@/stores/auth-store';
 import { useDraws } from '@/lib/hooks/useClubs';
 import { Calendar, dateFnsLocalizer, View } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay, parseISO, isPast } from 'date-fns';
+import { format, parse, startOfWeek, getDay, parseISO, isPast, startOfMonth, endOfMonth, isWithinInterval } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useMemo, useState, useCallback } from 'react';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
@@ -30,11 +30,22 @@ export default function DashboardPage() {
     const [currentView, setCurrentView] = useState<View>('month');
     const [selectedDraw, setSelectedDraw] = useState<any>(null);
 
+    // Calcular sorteos del mes actual
+    const sorteosDelMes = useMemo(() => {
+        if (!draws || !Array.isArray(draws)) return 0;
+
+        const now = new Date();
+        const monthStart = startOfMonth(now);
+        const monthEnd = endOfMonth(now);
+
+        return draws.filter(draw => {
+            const drawDate = parseISO(draw.date);
+            return isWithinInterval(drawDate, { start: monthStart, end: monthEnd });
+        }).length;
+    }, [draws]);
+
     const stats = [
-        { label: 'Miembros Activos', value: '1,234', change: '+12%', positive: true },
-        { label: 'Clubes Activos', value: '8', change: '+2', positive: true },
-        { label: 'Ventas del Mes', value: '$45,678', change: '+8.2%', positive: true },
-        { label: 'Beneficios Canjeados', value: '567', change: '+23%', positive: true },
+        { label: 'Sorteos del mes', value: sorteosDelMes.toString(), change: '🎟️', positive: true },
     ];
 
     // Transform draws into calendar events
@@ -138,10 +149,52 @@ export default function DashboardPage() {
                     </h2>
                 </div>
                 {isLoadingDraws ? (
-                    <div className="flex items-center justify-center h-96">
-                        <div className="text-center">
-                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2" style={{ borderColor: 'var(--primary)' }}></div>
-                            <p className="mt-2" style={{ color: 'var(--text-secondary)' }}>Cargando sorteos...</p>
+                    <div className="flex justify-center items-center py-16">
+                        <div
+                            className="flex flex-col items-center p-8 rounded-2xl shadow-sm"
+                            style={{
+                                backgroundColor: 'var(--card)',
+                                border: '1px solid var(--border-accent)',
+                            }}
+                        >
+                            <div className="relative">
+                                <div
+                                    className="w-16 h-16 border-4 rounded-full"
+                                    style={{ borderColor: 'var(--border)' }}
+                                ></div>
+                                <div
+                                    className="w-16 h-16 border-4 border-t-transparent rounded-full animate-spin absolute top-0 left-0"
+                                    style={{ borderColor: 'var(--primary)' }}
+                                ></div>
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <svg
+                                        className="w-6 h-6"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                        style={{ color: 'var(--primary)' }}
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                        />
+                                    </svg>
+                                </div>
+                            </div>
+                            <p
+                                className="mt-5 text-lg font-semibold"
+                                style={{ color: 'var(--text-primary)' }}
+                            >
+                                Cargando sorteos
+                            </p>
+                            <p
+                                className="mt-2 text-sm text-center max-w-xs"
+                                style={{ color: 'var(--text-secondary)' }}
+                            >
+                                Obteniendo información del calendario...
+                            </p>
                         </div>
                     </div>
                 ) : (
