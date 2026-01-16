@@ -108,8 +108,8 @@ type NavigationItem = {
 // ✅ Rutas corregidas - sin /dashboard prefix
 const navigation: NavigationItem[] = [
     { name: 'Inicio', href: '/', icon: Icons.Home },
-    { name: 'Clientes', href: '/clientes', icon: Icons.Customers },
     { name: 'Clubes', href: '/clubes', icon: Icons.Club },
+    { name: 'Clientes', href: '/clientes', icon: Icons.Customers },
     { name: 'Reportes', href: '/reportes', icon: Icons.Reports },
     {
         name: 'Administración',

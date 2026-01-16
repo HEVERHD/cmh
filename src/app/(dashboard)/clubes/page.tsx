@@ -6,9 +6,6 @@ import {
   Download,
   MoreHorizontal,
   Eye,
-  Edit,
-  Trash2,
-  Calendar,
   Loader2,
 } from "lucide-react";
 import {
@@ -29,7 +26,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -195,7 +191,7 @@ export default function ClubesPage() {
       errors.denominationId = "Denominación es requerida";
     }
     if (formData.share < 1 || formData.share > 99) {
-      errors.share = "Share debe estar entre 1 y 99";
+      errors.share = "Acción debe estar entre 1 y 99";
     }
     if (!formData.startDate.trim()) {
       errors.startDate = "Fecha de inicio es requerida";
@@ -536,13 +532,12 @@ export default function ClubesPage() {
                 )}
               </div>
 
-              {/* Share */}
               <div>
                 <label
                   className="block text-sm font-medium mb-2"
                   style={{ color: "var(--text-primary)" }}
                 >
-                  Share (1-99) <span style={{ color: "var(--error)" }}>*</span>
+                  Acción <span style={{ color: "var(--error)" }}>*</span>
                 </label>
                 <style
                   dangerouslySetInnerHTML={{
@@ -1240,7 +1235,7 @@ export default function ClubesPage() {
                           className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
                           style={{ color: "var(--text-secondary)" }}
                         >
-                          Share
+                          Acción
                         </th>
                         <th
                           className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
@@ -1363,19 +1358,6 @@ export default function ClubesPage() {
                                 >
                                   <Eye className="h-4 w-4 mr-2" />
                                   Ver detalles
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Edit className="h-4 w-4 mr-2" />
-                                  Editar
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Calendar className="h-4 w-4 mr-2" />
-                                  Ver semanas
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-red-600">
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Eliminar
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>

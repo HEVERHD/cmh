@@ -209,3 +209,111 @@ export interface ClubWithDetails extends Club {
     weeks?: ClubWeek[];
     transactions?: ClubTransaction[];
 }
+
+// ==========================================
+// Formas de Pago
+// ==========================================
+
+export type PaymentMethodType =
+    | 'credit_card'
+    | 'debit_card'
+    | 'bank_transfer'
+    | 'cash'
+    | 'check'
+    | 'wallet'
+    | 'paypal'
+    | 'other';
+
+export type CardBrand =
+    | 'visa'
+    | 'mastercard'
+    | 'american_express'
+    | 'discover'
+    | 'diners'
+    | 'other';
+
+export interface ClubPaymentMethod {
+    paymentMethodId: string;
+    clubId: string;
+    type: PaymentMethodType;
+
+    // Información general
+    holderName: string;
+
+    // Para tarjetas (tokenizadas, NUNCA almacenar completas)
+    cardBrand?: CardBrand;
+    last4?: string;              // Últimos 4 dígitos
+    expiryMonth?: number;        // 1-12
+    expiryYear?: number;         // YYYY
+
+    // Para transferencia bancaria
+    bankName?: string;
+    accountType?: 'checking' | 'savings';
+    accountNumberLast4?: string; // Últimos 4 dígitos
+    routingNumber?: string;      // Para US banks
+    clabe?: string;              // Para México
+
+    // Para cheques
+    checkNumber?: string;
+
+    // Para wallets/PayPal
+    email?: string;
+    phoneNumber?: string;
+
+    // Metadata
+    nickname?: string;           // "Tarjeta personal", "Cuenta de ahorro", etc.
+    isDefault: boolean;
+    active: boolean;
+    verifiedDate?: string;
+
+    // Auditoría
+    createdDate: string;
+    createdBy: string;
+    lastModifiedDate?: string;
+    lastModifiedBy?: string;
+}
+
+export interface CreatePaymentMethodDTO {
+    clubId: string;
+    type: PaymentMethodType;
+    holderName: string;
+
+    // Card fields
+    cardBrand?: CardBrand;
+    last4?: string;
+    expiryMonth?: number;
+    expiryYear?: number;
+
+    // Bank transfer fields
+    bankName?: string;
+    accountType?: 'checking' | 'savings';
+    accountNumberLast4?: string;
+    routingNumber?: string;
+    clabe?: string;
+
+    // Check fields
+    checkNumber?: string;
+
+    // Wallet fields
+    email?: string;
+    phoneNumber?: string;
+
+    // Metadata
+    nickname?: string;
+    isDefault?: boolean;
+}
+
+export interface UpdatePaymentMethodDTO {
+    holderName?: string;
+    nickname?: string;
+    expiryMonth?: number;
+    expiryYear?: number;
+    isDefault?: boolean;
+    active?: boolean;
+}
+
+export interface PaymentMethodFilters {
+    type?: PaymentMethodType;
+    active?: boolean;
+    isDefault?: boolean;
+}

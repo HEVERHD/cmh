@@ -57,7 +57,7 @@ export function ClubDetailSheet({ club, onClose }: Props) {
                         </Badge>
                     </div>
                     <SheetDescription>
-                        Share: {club.share} • {club.customerName}
+                        Acción: {club.share} • {club.customerName}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -79,7 +79,7 @@ export function ClubDetailSheet({ club, onClose }: Props) {
                         <div className="rounded-lg border p-3">
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                 <Hash className="h-4 w-4" />
-                                Share
+                                Acción
                             </div>
                             <p className="text-xl font-semibold mt-1">
                                 {club.share}

@@ -4,6 +4,7 @@ import { mockClubTypes, mockDenominations, mockClubStatuses } from '@/lib/data/m
 import type {
     Club, ClubFilters, PaginatedClubs, CreateClubDTO, UpdateClubDTO,
     ClubType, ClubStatus, Denomination, ClubWeek, ClubTransaction, ClubRule, Draw, LimitNumber,
+    ClubPaymentMethod, CreatePaymentMethodDTO, UpdatePaymentMethodDTO, PaymentMethodFilters,
 } from '@/types/club';
 
 const BASE_URL = '/mdl05';
@@ -308,6 +309,100 @@ export const clubApi = {
             return response;
         } catch (error) {
             console.error('❌ Error al generar reporte:', error);
+            throw error;
+        }
+    },
+
+    // ==========================================
+    // Formas de Pago
+    // ==========================================
+    async getPaymentMethods(clubId: string, filters?: PaymentMethodFilters): Promise<ClubPaymentMethod[]> {
+        try {
+            console.log('💳 Obteniendo formas de pago para club:', clubId);
+
+            const params = new URLSearchParams();
+            if (filters?.type) params.append('type', filters.type);
+            if (filters?.active !== undefined) params.append('active', String(filters.active));
+            if (filters?.isDefault !== undefined) params.append('isDefault', String(filters.isDefault));
+
+            const queryString = params.toString();
+            const url = `${BASE_URL}/club/${clubId}/paymentMethods${queryString ? `?${queryString}` : ''}`;
+
+            const { data } = await mdl05Client.get(url);
+
+            console.log('✅ Formas de pago obtenidas:', data);
+            return data;
+        } catch (error) {
+            console.error('❌ Error al obtener formas de pago:', error);
+            throw error;
+        }
+    },
+
+    async getPaymentMethod(paymentMethodId: string): Promise<ClubPaymentMethod> {
+        try {
+            console.log('💳 Obteniendo forma de pago:', paymentMethodId);
+
+            const { data } = await mdl05Client.get(`${BASE_URL}/paymentMethods/${paymentMethodId}`);
+
+            console.log('✅ Forma de pago obtenida:', data);
+            return data;
+        } catch (error) {
+            console.error('❌ Error al obtener forma de pago:', error);
+            throw error;
+        }
+    },
+
+    async createPaymentMethod(paymentMethodData: CreatePaymentMethodDTO): Promise<ClubPaymentMethod> {
+        try {
+            console.log('💳 Creando forma de pago:', paymentMethodData);
+
+            const { data } = await mdl05Client.post(`${BASE_URL}/club/${paymentMethodData.clubId}/paymentMethods`, paymentMethodData);
+
+            console.log('✅ Forma de pago creada:', data);
+            return data;
+        } catch (error) {
+            console.error('❌ Error al crear forma de pago:', error);
+            throw error;
+        }
+    },
+
+    async updatePaymentMethod(paymentMethodId: string, paymentMethodData: UpdatePaymentMethodDTO): Promise<ClubPaymentMethod> {
+        try {
+            console.log('💳 Actualizando forma de pago:', paymentMethodId, paymentMethodData);
+
+            const { data } = await mdl05Client.patch(`${BASE_URL}/paymentMethods/${paymentMethodId}`, paymentMethodData);
+
+            console.log('✅ Forma de pago actualizada:', data);
+            return data;
+        } catch (error) {
+            console.error('❌ Error al actualizar forma de pago:', error);
+            throw error;
+        }
+    },
+
+    async deletePaymentMethod(paymentMethodId: string): Promise<void> {
+        try {
+            console.log('💳 Eliminando forma de pago:', paymentMethodId);
+
+            await mdl05Client.delete(`${BASE_URL}/paymentMethods/${paymentMethodId}`);
+
+            console.log('✅ Forma de pago eliminada');
+        } catch (error) {
+            console.error('❌ Error al eliminar forma de pago:', error);
+            throw error;
+        }
+    },
+
+    async setDefaultPaymentMethod(clubId: string, paymentMethodId: string): Promise<ClubPaymentMethod> {
+        try {
+            console.log('💳 Estableciendo forma de pago por defecto:', { clubId, paymentMethodId });
+
+            const { data } = await mdl05Client.patch(`${BASE_URL}/club/${clubId}/paymentMethods/${paymentMethodId}/setDefault`);
+
+            console.log('✅ Forma de pago establecida como predeterminada');
+            return data;
+        } catch (error) {
+            console.error('❌ Error al establecer forma de pago predeterminada:', error);
             throw error;
         }
     },

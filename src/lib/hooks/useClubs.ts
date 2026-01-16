@@ -4,7 +4,10 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { clubApi } from '@/lib/api/clubs';
-import { ClubFilters, ClubRule, CreateClubDTO, UpdateClubDTO } from '@/types/club';
+import {
+    ClubFilters, ClubRule, CreateClubDTO, UpdateClubDTO,
+    PaymentMethodFilters, CreatePaymentMethodDTO, UpdatePaymentMethodDTO
+} from '@/types/club';
 
 
 // ==========================================
@@ -33,6 +36,11 @@ export const clubKeys = {
     // Sorteos
     draws: (clubTypeId?: string, dateFrom?: string, dateTo?: string) =>
         ['draws', { clubTypeId, dateFrom, dateTo }] as const,
+    // Formas de Pago
+    paymentMethods: (clubId: string, filters?: PaymentMethodFilters) =>
+        ['payment-methods', clubId, filters] as const,
+    paymentMethod: (paymentMethodId: string) =>
+        ['payment-method', paymentMethodId] as const,
 };
 
 // ==========================================
@@ -348,6 +356,105 @@ export function useUpdateLimitNumber() {
             clubApi.updateLimitNumber(number, limit),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: clubKeys.limits });
+        },
+    });
+}
+
+// ==========================================
+// Hooks para Formas de Pago
+// ==========================================
+
+// Obtener todas las formas de pago de un club
+export function usePaymentMethods(clubId: string, filters?: PaymentMethodFilters) {
+    return useQuery({
+        queryKey: clubKeys.paymentMethods(clubId, filters),
+        queryFn: () => clubApi.getPaymentMethods(clubId, filters),
+        enabled: !!clubId,
+        staleTime: 5 * 60 * 1000, // 5 minutos
+    });
+}
+
+// Obtener una forma de pago específica
+export function usePaymentMethod(paymentMethodId: string) {
+    return useQuery({
+        queryKey: clubKeys.paymentMethod(paymentMethodId),
+        queryFn: () => clubApi.getPaymentMethod(paymentMethodId),
+        enabled: !!paymentMethodId,
+    });
+}
+
+// ==========================================
+// Mutations para Formas de Pago
+// ==========================================
+
+// Crear forma de pago
+export function useCreatePaymentMethod() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: CreatePaymentMethodDTO) => clubApi.createPaymentMethod(data),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: clubKeys.paymentMethods(variables.clubId),
+            });
+        },
+    });
+}
+
+// Actualizar forma de pago
+export function useUpdatePaymentMethod() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({
+            paymentMethodId,
+            data,
+        }: {
+            paymentMethodId: string;
+            data: UpdatePaymentMethodDTO;
+        }) => clubApi.updatePaymentMethod(paymentMethodId, data),
+        onSuccess: (result) => {
+            queryClient.invalidateQueries({
+                queryKey: clubKeys.paymentMethods(result.clubId),
+            });
+            queryClient.invalidateQueries({
+                queryKey: clubKeys.paymentMethod(result.paymentMethodId),
+            });
+        },
+    });
+}
+
+// Eliminar forma de pago
+export function useDeletePaymentMethod() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ paymentMethodId, clubId }: { paymentMethodId: string; clubId: string }) =>
+            clubApi.deletePaymentMethod(paymentMethodId),
+        onSuccess: (_, { clubId }) => {
+            queryClient.invalidateQueries({
+                queryKey: clubKeys.paymentMethods(clubId),
+            });
+        },
+    });
+}
+
+// Establecer forma de pago por defecto
+export function useSetDefaultPaymentMethod() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({
+            clubId,
+            paymentMethodId,
+        }: {
+            clubId: string;
+            paymentMethodId: string;
+        }) => clubApi.setDefaultPaymentMethod(clubId, paymentMethodId),
+        onSuccess: (_, variables) => {
+            queryClient.invalidateQueries({
+                queryKey: clubKeys.paymentMethods(variables.clubId),
+            });
         },
     });
 }
